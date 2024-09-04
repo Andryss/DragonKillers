@@ -1,0 +1,163 @@
+openapi: 3.0.3
+info:
+  title: DragonKillers
+  description: DragonKillers
+  version: 1.0.0
+servers:
+  - url: http
+components:
+  schemas:
+    dragonId:
+      type: integer
+      format: int32
+      nullable: false
+      minimum: 0
+      exclusiveMinimum: true
+    Color:
+      type: string
+      enum:
+        - YELLOW
+        - ORANGE
+        - WHITE
+        - BROWN
+    DragonCave:
+      type: object
+      properties:
+        numberOfTreasures:
+          type: number
+          format: float
+          minimum: 0
+          exclusiveMinimum: true
+    Coordinates:
+      type: object
+      properties:
+        x:
+          type: number
+          format: double
+          nullable: false
+          maximum: 476
+        y:
+          type: number
+          format: float
+          nullable: false
+          minimum: -486
+          exclusiveMinimum: true
+    Dragon:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/dragonId"
+        name:
+          type: string
+          minLength: 1
+          nullable: false
+        coordinates:
+          $ref: "#/components/schemas/Coordinates"
+          nullable: false
+        creationDate:
+          type: string
+          format: date
+          nullable: false
+        age:
+          type: integer
+          format: int32
+          nullable: true
+        description:
+          type: string
+          nullable: false
+        speaking:
+          type: boolean
+          nullable: false
+        color:
+          $ref: "#/components/schemas/Color"
+          nullable: false
+        cave:
+          $ref: "#/components/schemas/DragonCave"
+          nullable: true
+paths:
+  /dragons:
+    post:
+      summary: Create dragon
+      requestBody:
+        content:
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/CreateDragonRequest"
+      responses:
+        200:
+          description: OK
+        400:
+          description: BAD REQUEST
+    get:
+      summary: Get dragons
+      parameters:
+        - in: query
+          name: pageNumber
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+      responses:
+        200:
+          description: OK
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/GetDragonsResponse"
+  /dragons/{id}:
+    get:
+      summary: Get dragon
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            $ref: "#/components/schemas/dragonId"
+      responses:
+        200:
+          description: OK
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/GetDragonResponse"
+        404:
+          description: NOT FOUND
+    put:
+      summary: Update dragon
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            $ref: "#/components/schemas/dragonId"
+      requestBody:
+        content:
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/UpdateDragonRequest"
+      responses:
+        200:
+          description: OK
+        400:
+          description: BAD REQUEST
+        404:
+          description: NOT FOUND
+    delete:
+      summary: Delete dragon
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            $ref: "#/components/schemas/dragonId"
+      responses:
+        200:
+          description: OK
+        404:
+          description: NOT FOUND
