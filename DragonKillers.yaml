@@ -45,8 +45,6 @@ components:
           format: float
           minimum: 0
           exclusiveMinimum: true
-      required:
-        - numberOfTreasures
     CoordinatesDto:
       type: object
       properties:
@@ -59,9 +57,6 @@ components:
           format: float
           minimum: -486
           exclusiveMinimum: true
-      required:
-        - x
-        - y
     DragonDto:
       type: object
       properties:
@@ -84,16 +79,6 @@ components:
           $ref: "#/components/schemas/Color"
         cave:
           $ref: "#/components/schemas/DragonCaveDto"
-      required:
-        - id
-        - name
-        - coordinates
-        - creationDate
-        - age
-        - description
-        - speaking
-        - color
-        - cave
     CreateDragonRequest:
       type: object
       properties:
@@ -119,6 +104,16 @@ components:
         - color
     UpdateDragonRequest:
       $ref: "#/components/schemas/CreateDragonRequest"
+    count:
+      type: integer
+      minimum: 0
+    DescriptionInfo:
+      type: object
+      properties:
+        description:
+          $ref: "#/components/schemas/dragonDescription"
+        count:
+          $ref: "#/components/schemas/count"
 paths:
   /dragons:
     post:
@@ -174,6 +169,28 @@ paths:
             enum:
               - asc
               - desc
+        - in: query
+          name: filterBy
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: filterOp
+          required: false
+          schema:
+            type: string
+            enum:
+              - lw # <
+              - le # <=
+              - gr # >
+              - ge # >=
+              - eq # ==
+              - ne # !=
+        - in: query
+          name: filterValue
+          required: false
+          schema:
+            type: string
       responses:
         200:
           description: OK
@@ -272,6 +289,63 @@ paths:
                 $ref: "#/components/schemas/ErrorObject"
         404:
           description: NOT FOUND
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ErrorObject"
+  /dragons/groupes/descriptions:
+    get:
+      summary: Group dragons by description, return number of dragons in each group
+      responses:
+        200:
+          description: OK
+          content:
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DescriptionInfo"
+  /dragons:countByColor:
+    post:
+      summary: Count dragons with given color
+      parameters:
+        - in: query
+          name: color
+          required: true
+          schema:
+            $ref: "#/components/schemas/Color"
+      responses:
+        200:
+          description: OK
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/count"
+        400:
+          description: BAD REQUEST
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ErrorObject"
+  /dragons:countWithGreaterCave:
+    post:
+      summary: Count dragons with cave greater then given
+      requestBody:
+        content:
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/DragonCaveDto"
+      responses:
+        200:
+          description: OK
+          content:
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DragonDto"
+        400:
+          description: BAD REQUEST
           content:
             application/xml:
               schema:
