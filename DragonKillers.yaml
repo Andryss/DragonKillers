@@ -7,12 +7,28 @@ servers:
   - url: http
 components:
   schemas:
+    ErrorObject:
+      type: object
+      properties:
+        message:
+          type: string
     dragonId:
       type: integer
       format: int32
       nullable: false
       minimum: 0
       exclusiveMinimum: true
+    dragonName:
+      type: string
+      minLength: 1
+    dragonAge:
+      type: integer
+      format: int32
+      nullable: true
+    dragonDescription:
+      type: string
+    dragonSpeaking:
+      type: boolean
     Color:
       type: string
       enum:
@@ -20,60 +36,89 @@ components:
         - ORANGE
         - WHITE
         - BROWN
-    DragonCave:
+    DragonCaveDto:
       type: object
+      nullable: true
       properties:
         numberOfTreasures:
           type: number
           format: float
           minimum: 0
           exclusiveMinimum: true
-    Coordinates:
+      required:
+        - numberOfTreasures
+    CoordinatesDto:
       type: object
       properties:
         x:
           type: number
           format: double
-          nullable: false
           maximum: 476
         y:
           type: number
           format: float
-          nullable: false
           minimum: -486
           exclusiveMinimum: true
-    Dragon:
+      required:
+        - x
+        - y
+    DragonDto:
       type: object
       properties:
         id:
           $ref: "#/components/schemas/dragonId"
         name:
-          type: string
-          minLength: 1
-          nullable: false
+          $ref: "#/components/schemas/dragonName"
         coordinates:
-          $ref: "#/components/schemas/Coordinates"
-          nullable: false
+          $ref: "#/components/schemas/CoordinatesDto"
         creationDate:
           type: string
           format: date
-          nullable: false
         age:
-          type: integer
-          format: int32
-          nullable: true
+          $ref: "#/components/schemas/dragonAge"
         description:
-          type: string
-          nullable: false
+          $ref: "#/components/schemas/dragonDescription"
         speaking:
-          type: boolean
-          nullable: false
+          $ref: "#/components/schemas/dragonSpeaking"
         color:
           $ref: "#/components/schemas/Color"
-          nullable: false
         cave:
-          $ref: "#/components/schemas/DragonCave"
-          nullable: true
+          $ref: "#/components/schemas/DragonCaveDto"
+      required:
+        - id
+        - name
+        - coordinates
+        - creationDate
+        - age
+        - description
+        - speaking
+        - color
+        - cave
+    CreateDragonRequest:
+      type: object
+      properties:
+        name:
+          $ref: "#/components/schemas/dragonName"
+        coordinates:
+          $ref: "#/components/schemas/CoordinatesDto"
+        age:
+          $ref: "#/components/schemas/dragonAge"
+        description:
+          $ref: "#/components/schemas/dragonDescription"
+        speaking:
+          $ref: "#/components/schemas/dragonSpeaking"
+        color:
+          $ref: "#/components/schemas/Color"
+        cave:
+          $ref: "#/components/schemas/DragonCaveDto"
+      required:
+        - name
+        - coordinates
+        - description
+        - speaking
+        - color
+    UpdateDragonRequest:
+      $ref: "#/components/schemas/CreateDragonRequest"
 paths:
   /dragons:
     post:
@@ -86,30 +131,64 @@ paths:
       responses:
         200:
           description: OK
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/DragonDto"
         400:
           description: BAD REQUEST
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ErrorObject"
     get:
       summary: Get dragons
       parameters:
         - in: query
           name: pageNumber
+          required: false
           schema:
             type: integer
             format: int32
+            default: 0
             minimum: 0
         - in: query
           name: pageSize
+          required: false
           schema:
             type: integer
             format: int32
+            default: 1
             minimum: 1
+            maximum: 50
+        - in: query
+          name: sortBy
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: sortOrder
+          required: false
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
       responses:
         200:
           description: OK
           content:
             application/xml:
               schema:
-                $ref: "#/components/schemas/GetDragonsResponse"
+                type: array
+                items:
+                  $ref: "#/components/schemas/DragonDto"
+        400:
+          description: BAD REQUEST
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ErrorObject"
   /dragons/{id}:
     get:
       summary: Get dragon
@@ -125,9 +204,19 @@ paths:
           content:
             application/xml:
               schema:
-                $ref: "#/components/schemas/GetDragonResponse"
+                $ref: "#/components/schemas/DragonDto"
+        400:
+          description: BAD REQUEST
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ErrorObject"
         404:
           description: NOT FOUND
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ErrorObject"
     put:
       summary: Update dragon
       parameters:
@@ -144,10 +233,22 @@ paths:
       responses:
         200:
           description: OK
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/DragonDto"
         400:
           description: BAD REQUEST
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ErrorObject"
         404:
           description: NOT FOUND
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ErrorObject"
     delete:
       summary: Delete dragon
       parameters:
@@ -159,5 +260,19 @@ paths:
       responses:
         200:
           description: OK
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/DragonDto"
+        400:
+          description: BAD REQUEST
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ErrorObject"
         404:
           description: NOT FOUND
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ErrorObject"
