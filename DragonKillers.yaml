@@ -4,7 +4,10 @@ info:
   description: DragonKillers
   version: 1.0.0
 servers:
-  - url: http
+  - url: https://драконы.рф
+    description: Dragons service
+  - url: https://убийцы.рф
+    description: Killers service
 tags:
   - name: dragons
     description: Everything about your dragons
@@ -28,6 +31,8 @@ components:
     dragonAge:
       type: integer
       format: int32
+      minimum: 0
+      exclusiveMinimum: true
       nullable: true
     dragonDescription:
       type: string
@@ -142,6 +147,7 @@ components:
     killerTeamSize:
       type: integer
       format: int32
+      minimum: 1
     KillerTeamDto:
       type: object
       properties:
@@ -342,8 +348,8 @@ paths:
             application/xml:
               schema:
                 $ref: "#/components/schemas/ErrorObject"
-  /dragons/groupes/descriptions:
-    get:
+  /dragons:groupByDescription:
+    post:
       summary: Group dragons by description, return number of dragons in each group
       tags:
         - dragons
@@ -450,7 +456,7 @@ paths:
             application/xml:
               schema:
                 $ref: "#/components/schemas/ErrorObject"
-  /team/{team-id}/move-to-cave/{cave-id}:
+  /killer/team/{team-id}/move-to-cave/{cave-id}:
     post:
       summary: Move killers team to a cave
       tags:
