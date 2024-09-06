@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: DragonKillers
-  description: DragonKillers
+  description: Services for managing collection of Dragons and for managing Killers teams
   version: 1.0.0
 servers:
   - url: https://драконы.рф
