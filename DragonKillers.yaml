@@ -126,6 +126,13 @@ components:
         - description
         - speaking
         - color
+    DragonsList:
+      type: object
+      properties:
+        dragons:
+          type: array
+          items:
+            $ref: "#/components/schemas/DragonDto"
     UpdateDragonRequest:
       $ref: "#/components/schemas/CreateDragonRequest"
     count:
@@ -159,6 +166,166 @@ components:
           $ref: "#/components/schemas/killerTeamSize"
         caveId:
           $ref: "#/components/schemas/caveId"
+    GroupByDescriptionResponse:
+      type: object
+      properties:
+        descriptions:
+          type: array
+          items:
+            $ref: "#/components/schemas/DescriptionInfo"
+    IntFilter:
+      type: object
+      properties:
+        eq:
+          type: integer
+          format: int32
+          nullable: true
+        ne:
+          type: integer
+          format: int32
+          nullable: true
+        gr:
+          type: integer
+          format: int32
+        ge:
+          type: integer
+          format: int32
+        lw:
+          type: integer
+          format: int32
+        le:
+          type: integer
+          format: int32
+    FloatFilter:
+      type: object
+      properties:
+        eq:
+          type: number
+          format: double
+          nullable: true
+        ne:
+          type: number
+          format: double
+          nullable: true
+        gr:
+          type: number
+          format: double
+        ge:
+          type: number
+          format: double
+        lw:
+          type: number
+          format: double
+        le:
+          type: number
+          format: double
+    StringFilter:
+      type: object
+      properties:
+        eq:
+          type: string
+          nullable: true
+        ne:
+          type: string
+          nullable: true
+    DateFilter:
+      type: object
+      properties:
+        eq:
+          type: string
+          format: date
+          nullable: true
+        ne:
+          type: string
+          format: date
+          nullable: true
+        gr:
+          type: string
+          format: date
+        ge:
+          type: string
+          format: date
+        lw:
+          type: string
+          format: date
+        le:
+          type: string
+          format: date
+    BooleanFilter:
+      type: object
+      properties:
+        eq:
+          type: boolean
+          nullable: true
+        ne:
+          type: boolean
+          nullable: true
+    EnumFilter:
+      type: object
+      properties:
+        eq:
+          type: string
+          nullable: true
+        ne:
+          type: string
+          nullable: true
+    CoordinatesFilter:
+      type: object
+      properties:
+        x:
+          $ref: "#/components/schemas/FloatFilter"
+        y:
+          $ref: "#/components/schemas/FloatFilter"
+    DragonCaveFilter:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/IntFilter"
+        numberOfTreasures:
+          $ref: "#/components/schemas/FloatFilter"
+    DragonFilter:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/IntFilter"
+        name:
+          $ref: "#/components/schemas/StringFilter"
+        coordinates:
+          $ref: "#/components/schemas/CoordinatesFilter"
+        creationDate:
+          $ref: "#/components/schemas/DateFilter"
+        age:
+          $ref: "#/components/schemas/IntFilter"
+        description:
+          $ref: "#/components/schemas/StringFilter"
+        speaking:
+          $ref: "#/components/schemas/BooleanFilter"
+        color:
+          $ref: "#/components/schemas/EnumFilter"
+        cave:
+          $ref: "#/components/schemas/DragonCaveFilter"
+    SearchDragonInfo:
+      type: object
+      properties:
+        pageNumber:
+          type: integer
+          format: int32
+          minimum: 0
+          default: 0
+        pageSize:
+          type: integer
+          format: int32
+          minimum: 1
+          default: 1
+        sortBy:
+          type: string
+        sortOrder:
+          type: string
+          enum:
+            - asc
+            - desc
+        filter:
+          $ref: "#/components/schemas/DragonFilter"
 paths:
   /dragons:
     post:
@@ -183,72 +350,23 @@ paths:
             application/xml:
               schema:
                 $ref: "#/components/schemas/ErrorObject"
-    get:
-      summary: Get dragons
+  /dragons:search:
+    post:
+      summary: Search dragons
       tags:
         - dragons
-      parameters:
-        - in: query
-          name: pageNumber
-          required: false
-          schema:
-            type: integer
-            format: int32
-            default: 0
-            minimum: 0
-        - in: query
-          name: pageSize
-          required: false
-          schema:
-            type: integer
-            format: int32
-            default: 1
-            minimum: 1
-            maximum: 50
-        - in: query
-          name: sortBy
-          required: false
-          schema:
-            type: string
-        - in: query
-          name: sortOrder
-          required: false
-          schema:
-            type: string
-            enum:
-              - asc
-              - desc
-        - in: query
-          name: filterBy
-          required: false
-          schema:
-            type: string
-        - in: query
-          name: filterOp
-          required: false
-          schema:
-            type: string
-            enum:
-              - lw # <
-              - le # <=
-              - gr # >
-              - ge # >=
-              - eq # ==
-              - ne # !=
-        - in: query
-          name: filterValue
-          required: false
-          schema:
-            type: string
+      requestBody:
+        content:
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/SearchDragonInfo"
       responses:
         200:
           description: OK
           content:
             application/xml:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/DragonDto"
+                $ref: "#/components/schemas/DragonsList"
         400:
           description: BAD REQUEST
           content:
@@ -359,9 +477,7 @@ paths:
           content:
             application/xml:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/DescriptionInfo"
+                $ref: "#/components/schemas/GroupByDescriptionResponse"
   /dragons:countByColor:
     post:
       summary: Count dragons with given color
@@ -402,9 +518,7 @@ paths:
           content:
             application/xml:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/DragonDto"
+                $ref: "#/components/schemas/DragonsList"
         400:
           description: BAD REQUEST
           content:
