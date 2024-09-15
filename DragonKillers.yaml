@@ -179,21 +179,10 @@ components:
         eq:
           type: integer
           format: int32
-          nullable: true
-        ne:
-          type: integer
-          format: int32
-          nullable: true
         gr:
           type: integer
           format: int32
-        ge:
-          type: integer
-          format: int32
         lw:
-          type: integer
-          format: int32
-        le:
           type: integer
           format: int32
     FloatFilter:
@@ -202,21 +191,10 @@ components:
         eq:
           type: number
           format: double
-          nullable: true
-        ne:
-          type: number
-          format: double
-          nullable: true
         gr:
           type: number
           format: double
-        ge:
-          type: number
-          format: double
         lw:
-          type: number
-          format: double
-        le:
           type: number
           format: double
     StringFilter:
@@ -224,31 +202,16 @@ components:
       properties:
         eq:
           type: string
-          nullable: true
-        ne:
-          type: string
-          nullable: true
     DateFilter:
       type: object
       properties:
         eq:
           type: string
           format: date
-          nullable: true
-        ne:
-          type: string
-          format: date
-          nullable: true
         gr:
           type: string
           format: date
-        ge:
-          type: string
-          format: date
         lw:
-          type: string
-          format: date
-        le:
           type: string
           format: date
     BooleanFilter:
@@ -256,19 +219,11 @@ components:
       properties:
         eq:
           type: boolean
-          nullable: true
-        ne:
-          type: boolean
-          nullable: true
     EnumFilter:
       type: object
       properties:
         eq:
           type: string
-          nullable: true
-        ne:
-          type: string
-          nullable: true
     CoordinatesFilter:
       type: object
       properties:
