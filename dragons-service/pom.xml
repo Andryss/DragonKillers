@@ -69,15 +69,53 @@
     </dependency>
 
     <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>1.18.34</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.data</groupId>
+      <artifactId>spring-data-jpa</artifactId>
+      <version>3.2.2</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hibernate.orm</groupId>
+      <artifactId>hibernate-core</artifactId>
+      <version>6.4.1.Final</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.swagger.core.v3</groupId>
+      <artifactId>swagger-annotations</artifactId>
+      <version>2.2.23</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+      <version>2.18.0</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.openapitools</groupId>
       <artifactId>jackson-databind-nullable</artifactId>
       <version>0.2.6</version>
     </dependency>
 
     <dependency>
-      <groupId>org.springdoc</groupId>
-      <artifactId>springdoc-openapi-ui</artifactId>
-      <version>1.8.0</version>
+      <groupId>com.zaxxer</groupId>
+      <artifactId>HikariCP</artifactId>
+      <version>5.0.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>42.7.2</version>
+      <scope>runtime</scope>
     </dependency>
 
   </dependencies>
@@ -134,11 +172,16 @@
               <generatorName>spring</generatorName>
               <apiPackage>ru.andryss.dragons.api</apiPackage>
               <modelPackage>ru.andryss.dragons.model</modelPackage>
+              <generateApiTests>false</generateApiTests>
+              <generateModelTests>false</generateModelTests>
+              <generateSupportingFiles>false</generateSupportingFiles>
               <configOptions>
-                <delegatePattern>true</delegatePattern>
-                <useSpringBoot3>true</useSpringBoot3>
+                <skipDefaultInterface>true</skipDefaultInterface>
                 <useResponseEntity>false</useResponseEntity>
                 <useTags>true</useTags>
+                <interfaceOnly>true</interfaceOnly>
+                <useJakartaEe>true</useJakartaEe>
+                <openApiNullable>false</openApiNullable>
               </configOptions>
             </configuration>
           </execution>

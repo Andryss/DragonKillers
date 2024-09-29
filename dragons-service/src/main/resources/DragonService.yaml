@@ -48,6 +48,15 @@ components:
     caveId:
       type: integer
       format: int32
+    coordinatesX:
+      type: number
+      format: double
+      maximum: 476
+    coordinatesY:
+      type: number
+      format: float
+      minimum: -486
+      exclusiveMinimum: true
     DragonCaveDto:
       type: object
       nullable: true
@@ -68,14 +77,19 @@ components:
       type: object
       properties:
         x:
-          type: number
-          format: double
-          maximum: 476
+          $ref: "#/components/schemas/coordinatesX"
         y:
-          type: number
-          format: float
-          minimum: -486
-          exclusiveMinimum: true
+          $ref: "#/components/schemas/coordinatesY"
+    CreateCoordinates:
+      type: object
+      properties:
+        x:
+          $ref: "#/components/schemas/coordinatesX"
+        y:
+          $ref: "#/components/schemas/coordinatesY"
+      required:
+        - x
+        - y
     DragonDto:
       type: object
       properties:
@@ -104,7 +118,7 @@ components:
         name:
           $ref: "#/components/schemas/dragonName"
         coordinates:
-          $ref: "#/components/schemas/CoordinatesDto"
+          $ref: "#/components/schemas/CreateCoordinates"
         age:
           $ref: "#/components/schemas/dragonAge"
         description:
@@ -280,6 +294,7 @@ paths:
   /dragons:
     post:
       summary: Create dragon
+      operationId: createDragon
       tags:
         - dragons
       requestBody:
@@ -303,6 +318,7 @@ paths:
   /dragons:search:
     post:
       summary: Search dragons
+      operationId: searchDragons
       tags:
         - dragons
       requestBody:
@@ -326,6 +342,7 @@ paths:
   /dragons/{id}:
     get:
       summary: Get dragon
+      operationId: getDragon
       tags:
         - dragons
       parameters:
@@ -355,6 +372,7 @@ paths:
                 $ref: "#/components/schemas/ErrorObject"
     put:
       summary: Update dragon
+      operationId: updateDragon
       tags:
         - dragons
       parameters:
@@ -389,6 +407,7 @@ paths:
                 $ref: "#/components/schemas/ErrorObject"
     delete:
       summary: Delete dragon
+      operationId: deleteDragon
       tags:
         - dragons
       parameters:
@@ -419,6 +438,7 @@ paths:
   /dragons:groupByDescription:
     post:
       summary: Group dragons by description, return number of dragons in each group
+      operationId: groupDragonsByDescription
       tags:
         - dragons
       responses:
@@ -431,6 +451,7 @@ paths:
   /dragons:countByColor:
     post:
       summary: Count dragons with given color
+      operationId: countDragonsByColor
       tags:
         - dragons
       parameters:
@@ -455,6 +476,7 @@ paths:
   /dragons:countWithGreaterCave:
     post:
       summary: Count dragons with cave greater then given
+      operationId: countDragonsWithGreaterCave
       tags:
         - dragons
       requestBody:
