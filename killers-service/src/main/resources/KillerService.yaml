@@ -1,0 +1,359 @@
+openapi: 3.0.3
+info:
+  title: Killer service
+  description: Service managing Killer teams
+  version: 1.0.0
+servers:
+  - url: http://localhost
+tags:
+  - name: killers
+    description: Everything about your killers
+components:
+  schemas:
+    ErrorObject:
+      type: object
+      properties:
+        message:
+          type: string
+    dragonId:
+      type: integer
+      format: int32
+      minimum: 0
+      exclusiveMinimum: true
+    dragonName:
+      type: string
+      minLength: 1
+    dragonAge:
+      type: integer
+      format: int32
+      minimum: 0
+      exclusiveMinimum: true
+      nullable: true
+    dragonDescription:
+      type: string
+    dragonSpeaking:
+      type: boolean
+    caveNumberOfTreasures:
+      type: number
+      format: float
+      minimum: 0
+      exclusiveMinimum: true
+    Color:
+      type: string
+      enum:
+        - YELLOW
+        - ORANGE
+        - WHITE
+        - BROWN
+    caveId:
+      type: integer
+      format: int32
+    DragonCaveDto:
+      type: object
+      nullable: true
+      properties:
+        id:
+          $ref: "#/components/schemas/caveId"
+        numberOfTreasures:
+          $ref: "#/components/schemas/caveNumberOfTreasures"
+    CreateDragonCave:
+      type: object
+      nullable: true
+      properties:
+        numberOfTreasures:
+          $ref: "#/components/schemas/caveNumberOfTreasures"
+      required:
+        - numberOfTreasures
+    CoordinatesDto:
+      type: object
+      properties:
+        x:
+          type: number
+          format: double
+          maximum: 476
+        y:
+          type: number
+          format: float
+          minimum: -486
+          exclusiveMinimum: true
+    DragonDto:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/dragonId"
+        name:
+          $ref: "#/components/schemas/dragonName"
+        coordinates:
+          $ref: "#/components/schemas/CoordinatesDto"
+        creationDate:
+          type: string
+          format: date
+        age:
+          $ref: "#/components/schemas/dragonAge"
+        description:
+          $ref: "#/components/schemas/dragonDescription"
+        speaking:
+          $ref: "#/components/schemas/dragonSpeaking"
+        color:
+          $ref: "#/components/schemas/Color"
+        cave:
+          $ref: "#/components/schemas/DragonCaveDto"
+    CreateDragonRequest:
+      type: object
+      properties:
+        name:
+          $ref: "#/components/schemas/dragonName"
+        coordinates:
+          $ref: "#/components/schemas/CoordinatesDto"
+        age:
+          $ref: "#/components/schemas/dragonAge"
+        description:
+          $ref: "#/components/schemas/dragonDescription"
+        speaking:
+          $ref: "#/components/schemas/dragonSpeaking"
+        color:
+          $ref: "#/components/schemas/Color"
+        cave:
+          $ref: "#/components/schemas/CreateDragonCave"
+      required:
+        - name
+        - coordinates
+        - description
+        - speaking
+        - color
+    DragonsList:
+      type: object
+      properties:
+        dragons:
+          type: array
+          items:
+            $ref: "#/components/schemas/DragonDto"
+    UpdateDragonRequest:
+      $ref: "#/components/schemas/CreateDragonRequest"
+    count:
+      type: integer
+      minimum: 0
+    DescriptionInfo:
+      type: object
+      properties:
+        description:
+          $ref: "#/components/schemas/dragonDescription"
+        count:
+          $ref: "#/components/schemas/count"
+    killerTeamId:
+      type: string
+      minLength: 1
+    killerTeamName:
+      type: string
+      minLength: 1
+    killerTeamSize:
+      type: integer
+      format: int32
+      minimum: 1
+    KillerTeamDto:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/killerTeamId"
+        name:
+          $ref: "#/components/schemas/killerTeamName"
+        size:
+          $ref: "#/components/schemas/killerTeamSize"
+        caveId:
+          $ref: "#/components/schemas/caveId"
+    GroupByDescriptionResponse:
+      type: object
+      properties:
+        descriptions:
+          type: array
+          items:
+            $ref: "#/components/schemas/DescriptionInfo"
+    IntFilter:
+      type: object
+      properties:
+        eq:
+          type: integer
+          format: int32
+        gr:
+          type: integer
+          format: int32
+        lw:
+          type: integer
+          format: int32
+    FloatFilter:
+      type: object
+      properties:
+        eq:
+          type: number
+          format: double
+        gr:
+          type: number
+          format: double
+        lw:
+          type: number
+          format: double
+    StringFilter:
+      type: object
+      properties:
+        eq:
+          type: string
+    DateFilter:
+      type: object
+      properties:
+        eq:
+          type: string
+          format: date
+        gr:
+          type: string
+          format: date
+        lw:
+          type: string
+          format: date
+    BooleanFilter:
+      type: object
+      properties:
+        eq:
+          type: boolean
+    EnumFilter:
+      type: object
+      properties:
+        eq:
+          type: string
+    CoordinatesFilter:
+      type: object
+      properties:
+        x:
+          $ref: "#/components/schemas/FloatFilter"
+        y:
+          $ref: "#/components/schemas/FloatFilter"
+    DragonCaveFilter:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/IntFilter"
+        numberOfTreasures:
+          $ref: "#/components/schemas/FloatFilter"
+    DragonFilter:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/IntFilter"
+        name:
+          $ref: "#/components/schemas/StringFilter"
+        coordinates:
+          $ref: "#/components/schemas/CoordinatesFilter"
+        creationDate:
+          $ref: "#/components/schemas/DateFilter"
+        age:
+          $ref: "#/components/schemas/IntFilter"
+        description:
+          $ref: "#/components/schemas/StringFilter"
+        speaking:
+          $ref: "#/components/schemas/BooleanFilter"
+        color:
+          $ref: "#/components/schemas/EnumFilter"
+        cave:
+          $ref: "#/components/schemas/DragonCaveFilter"
+    SearchDragonInfo:
+      type: object
+      properties:
+        pageNumber:
+          type: integer
+          format: int32
+          minimum: 0
+          default: 0
+        pageSize:
+          type: integer
+          format: int32
+          minimum: 1
+          default: 1
+        sortBy:
+          type: string
+        sortOrder:
+          type: string
+          enum:
+            - asc
+            - desc
+        filter:
+          $ref: "#/components/schemas/DragonFilter"
+paths:
+  /killer/teams/create/{team-id}/{team-name}/{team-size}/{start-cave-id}:
+    post:
+      summary: Create killers team
+      tags:
+        - killers
+      parameters:
+        - in: path
+          name: team-id
+          required: true
+          schema:
+            $ref: "#/components/schemas/killerTeamId"
+        - in: path
+          name: team-name
+          required: true
+          schema:
+            $ref: "#/components/schemas/killerTeamName"
+        - in: path
+          name: team-size
+          required: true
+          schema:
+            $ref: "#/components/schemas/killerTeamSize"
+        - in: path
+          name: start-cave-id
+          required: true
+          schema:
+            $ref: "#/components/schemas/caveId"
+      responses:
+        200:
+          description: OK
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/KillerTeamDto"
+        400:
+          description: BAD REQUEST
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ErrorObject"
+        409:
+          description: CONFLICT
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ErrorObject"
+  /killer/team/{team-id}/move-to-cave/{cave-id}:
+    post:
+      summary: Move killers team to a cave
+      tags:
+        - killers
+      parameters:
+        - in: path
+          name: team-id
+          required: true
+          schema:
+            $ref: "#/components/schemas/killerTeamId"
+        - in: path
+          name: cave-id
+          required: true
+          schema:
+            $ref: "#/components/schemas/caveId"
+      responses:
+        200:
+          description: OK
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/KillerTeamDto"
+        400:
+          description: BAD REQUEST
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ErrorObject"
+        404:
+          description: NOT FOUND
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ErrorObject"
