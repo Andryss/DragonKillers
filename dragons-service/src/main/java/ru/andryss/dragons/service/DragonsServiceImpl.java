@@ -1,7 +1,7 @@
 package ru.andryss.dragons.service;
 
 import java.time.Instant;
-import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
@@ -279,7 +279,7 @@ public class DragonsServiceImpl implements DragonsService {
                 .coordinates(new CoordinatesDto()
                         .x(dragon.getX())
                         .y(dragon.getY()))
-                .creationDate(LocalDate.ofInstant(dragon.getCreationDate(), ZoneOffset.UTC))
+                .creationDate(OffsetDateTime.ofInstant(dragon.getCreationDate(), ZoneOffset.UTC))
                 .age(dragon.getAge())
                 .description(dragon.getDescription())
                 .speaking(dragon.isSpeaking())

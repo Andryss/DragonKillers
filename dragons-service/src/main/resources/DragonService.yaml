@@ -101,7 +101,7 @@ components:
           $ref: "#/components/schemas/CoordinatesDto"
         creationDate:
           type: string
-          format: date
+          format: date-time
         age:
           $ref: "#/components/schemas/dragonAge"
         description:
@@ -155,8 +155,7 @@ components:
         count:
           $ref: "#/components/schemas/count"
     killerTeamId:
-      type: string
-      minLength: 1
+      type: integer
     killerTeamName:
       type: string
       minLength: 1
@@ -175,6 +174,13 @@ components:
           $ref: "#/components/schemas/killerTeamSize"
         caveId:
           $ref: "#/components/schemas/caveId"
+    KillerTeamDtoList:
+      type: object
+      properties:
+        teams:
+          type: array
+          items:
+            $ref: "#/components/schemas/KillerTeamDto"
     GroupByDescriptionResponse:
       type: object
       properties:
@@ -294,6 +300,21 @@ components:
             - desc
         filter:
           $ref: "#/components/schemas/DragonFilter"
+    CreateKillerTeamRequest:
+      type: object
+      properties:
+        name:
+          $ref: "#/components/schemas/killerTeamName"
+        size:
+          $ref: "#/components/schemas/killerTeamSize"
+        caveId:
+          $ref: "#/components/schemas/caveId"
+      required:
+        - name
+        - size
+        - caveId
+    UpdateKillerTeamRequest:
+      $ref: "#/components/schemas/CreateKillerTeamRequest"
 paths:
   /dragons:
     post:
@@ -493,6 +514,134 @@ paths:
                 $ref: "#/components/schemas/DragonsList"
         400:
           description: BAD REQUEST
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ErrorObject"
+  /killers:
+    post:
+      summary: Create killer team
+      operationId: createKillerTeam
+      tags:
+        - killers
+      requestBody:
+        content:
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/CreateKillerTeamRequest"
+      responses:
+        200:
+          description: OK
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/KillerTeamDto"
+        400:
+          description: BAD REQUEST
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ErrorObject"
+    get:
+      summary: Get killer teams
+      operationId: getKillerTeams
+      tags:
+        - killers
+      responses:
+        200:
+          description: OK
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/KillerTeamDtoList"
+  /killers/{id}:
+    get:
+      summary: Get killer team
+      operationId: getKillerTeam
+      tags:
+        - killers
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            $ref: "#/components/schemas/killerTeamId"
+      responses:
+        200:
+          description: OK
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/KillerTeamDto"
+        400:
+          description: BAD REQUEST
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ErrorObject"
+        404:
+          description: NOT FOUND
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ErrorObject"
+    put:
+      summary: Update killer team
+      operationId: updateKillerTeam
+      tags:
+        - killers
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            $ref: "#/components/schemas/killerTeamId"
+      requestBody:
+        content:
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/UpdateKillerTeamRequest"
+      responses:
+        200:
+          description: OK
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/KillerTeamDto"
+        400:
+          description: BAD REQUEST
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ErrorObject"
+        404:
+          description: NOT FOUND
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ErrorObject"
+    delete:
+      summary: Delete killer team
+      operationId: deleteKillerTeam
+      tags:
+        - killers
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            $ref: "#/components/schemas/killerTeamId"
+      responses:
+        200:
+          description: OK
+        400:
+          description: BAD REQUEST
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ErrorObject"
+        404:
+          description: NOT FOUND
           content:
             application/xml:
               schema:

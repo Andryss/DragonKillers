@@ -8,7 +8,9 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
+import org.springframework.web.servlet.NoHandlerFoundException;
 import ru.andryss.dragons.exception.NotFoundException;
 import ru.andryss.dragons.model.ErrorObject;
 
@@ -23,7 +25,8 @@ public class CustomControllerAdvice {
     @ExceptionHandler({
             ConstraintViolationException.class,
             HttpMessageNotReadableException.class,
-            MissingServletRequestPartException.class
+            MissingServletRequestPartException.class,
+            MethodArgumentTypeMismatchException.class,
     })
     @ResponseStatus(BAD_REQUEST)
     ErrorObject handleBadRequest(Exception e) {
@@ -46,7 +49,10 @@ public class CustomControllerAdvice {
         return new ErrorObject().message((String) e.getDetailMessageArguments()[1]);
     }
 
-    @ExceptionHandler(NotFoundException.class)
+    @ExceptionHandler({
+            NotFoundException.class,
+            NoHandlerFoundException.class
+    })
     @ResponseStatus(NOT_FOUND)
     ErrorObject handleNotFound(Exception e) {
         return new ErrorObject().message(e.getMessage());
