@@ -7,5 +7,5 @@
 
 ## Deployment
 
-- Build war archive with `mvn package` command
+- Build war archive with `mvn clean install` command
 - Deploy war archive according to provided application server
