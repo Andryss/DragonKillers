@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.andryss.dragons.entity.KillerTeamEntity;
+import ru.andryss.dragons.exception.ConflictException;
 import ru.andryss.dragons.exception.NotFoundException;
 import ru.andryss.dragons.model.KillerTeamDto;
 import ru.andryss.dragons.repository.CaveRepository;
@@ -21,11 +22,15 @@ public class KillerServiceImpl implements KillerService {
     private final CaveRepository caveRepository;
 
     @Override
-    public KillerTeamDto createTeam(String name, Integer size, Integer caveId) {
+    public KillerTeamDto createTeam(Integer id, String name, Integer size, Integer caveId) {
+        if (killerTeamRepository.findById(id).isPresent()) {
+            throw new ConflictException(id.toString());
+        }
         caveRepository.findById(caveId)
                 .orElseThrow(() -> new NotFoundException(caveId.toString()));
 
         KillerTeamEntity team = new KillerTeamEntity();
+        team.setId(id);
         team.setName(name);
         team.setSize(size);
         team.setCaveId(caveId);

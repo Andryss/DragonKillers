@@ -1,4 +1,4 @@
-package ru.andryss.dragons.controller;
+package ru.andryss.killers.controller;
 
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -11,12 +11,11 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.NoHandlerFoundException;
-import ru.andryss.dragons.exception.ConflictException;
-import ru.andryss.dragons.exception.NotFoundException;
-import ru.andryss.dragons.model.ErrorObject;
+import ru.andryss.killers.exception.InternalServerErrorException;
+import ru.andryss.killers.model.ErrorObject;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.CONFLICT;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.UNSUPPORTED_MEDIA_TYPE;
 
@@ -51,18 +50,15 @@ public class CustomControllerAdvice {
         return new ErrorObject().message((String) e.getDetailMessageArguments()[1]);
     }
 
-    @ExceptionHandler({
-            NotFoundException.class,
-            NoHandlerFoundException.class
-    })
+    @ExceptionHandler(NoHandlerFoundException.class)
     @ResponseStatus(NOT_FOUND)
     ErrorObject handleNotFound(Exception e) {
         return new ErrorObject().message(e.getMessage());
     }
 
-    @ExceptionHandler(ConflictException.class)
-    @ResponseStatus(CONFLICT)
-    ErrorObject handleConflict(Exception e) {
+    @ExceptionHandler(InternalServerErrorException.class)
+    @ResponseStatus(INTERNAL_SERVER_ERROR)
+    ErrorObject handleInternalServerError(Exception e) {
         return new ErrorObject().message(e.getMessage());
     }
 }

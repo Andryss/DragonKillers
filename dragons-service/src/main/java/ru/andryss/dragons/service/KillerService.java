@@ -5,7 +5,7 @@ import java.util.List;
 import ru.andryss.dragons.model.KillerTeamDto;
 
 public interface KillerService {
-    KillerTeamDto createTeam(String name, Integer size, Integer caveId);
+    KillerTeamDto createTeam(Integer id, String name, Integer size, Integer caveId);
 
     KillerTeamDto getById(Integer id);
 

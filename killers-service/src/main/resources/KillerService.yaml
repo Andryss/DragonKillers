@@ -48,6 +48,15 @@ components:
     caveId:
       type: integer
       format: int32
+    coordinatesX:
+      type: number
+      format: double
+      maximum: 476
+    coordinatesY:
+      type: number
+      format: float
+      minimum: -486
+      exclusiveMinimum: true
     DragonCaveDto:
       type: object
       nullable: true
@@ -68,14 +77,19 @@ components:
       type: object
       properties:
         x:
-          type: number
-          format: double
-          maximum: 476
+          $ref: "#/components/schemas/coordinatesX"
         y:
-          type: number
-          format: float
-          minimum: -486
-          exclusiveMinimum: true
+          $ref: "#/components/schemas/coordinatesY"
+    CreateCoordinates:
+      type: object
+      properties:
+        x:
+          $ref: "#/components/schemas/coordinatesX"
+        y:
+          $ref: "#/components/schemas/coordinatesY"
+      required:
+        - x
+        - y
     DragonDto:
       type: object
       properties:
@@ -87,7 +101,7 @@ components:
           $ref: "#/components/schemas/CoordinatesDto"
         creationDate:
           type: string
-          format: date
+          format: date-time
         age:
           $ref: "#/components/schemas/dragonAge"
         description:
@@ -104,7 +118,7 @@ components:
         name:
           $ref: "#/components/schemas/dragonName"
         coordinates:
-          $ref: "#/components/schemas/CoordinatesDto"
+          $ref: "#/components/schemas/CreateCoordinates"
         age:
           $ref: "#/components/schemas/dragonAge"
         description:
@@ -141,8 +155,7 @@ components:
         count:
           $ref: "#/components/schemas/count"
     killerTeamId:
-      type: string
-      minLength: 1
+      type: integer
     killerTeamName:
       type: string
       minLength: 1
@@ -161,6 +174,13 @@ components:
           $ref: "#/components/schemas/killerTeamSize"
         caveId:
           $ref: "#/components/schemas/caveId"
+    KillerTeamDtoList:
+      type: object
+      properties:
+        teams:
+          type: array
+          items:
+            $ref: "#/components/schemas/KillerTeamDto"
     GroupByDescriptionResponse:
       type: object
       properties:
@@ -168,6 +188,13 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/DescriptionInfo"
+    GreaterCaveRequest:
+      type: object
+      properties:
+        numberOfTreasures:
+          $ref: "#/components/schemas/caveNumberOfTreasures"
+      required:
+        - numberOfTreasures
     IntFilter:
       type: object
       properties:
@@ -214,11 +241,6 @@ components:
       properties:
         eq:
           type: boolean
-    EnumFilter:
-      type: object
-      properties:
-        eq:
-          type: string
     CoordinatesFilter:
       type: object
       properties:
@@ -251,7 +273,7 @@ components:
         speaking:
           $ref: "#/components/schemas/BooleanFilter"
         color:
-          $ref: "#/components/schemas/EnumFilter"
+          $ref: "#/components/schemas/StringFilter"
         cave:
           $ref: "#/components/schemas/DragonCaveFilter"
     SearchDragonInfo:
@@ -269,17 +291,37 @@ components:
           default: 1
         sortBy:
           type: string
+          default: id
         sortOrder:
           type: string
+          default: asc
           enum:
             - asc
             - desc
         filter:
           $ref: "#/components/schemas/DragonFilter"
+    CreateKillerTeamRequest:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/killerTeamId"
+        name:
+          $ref: "#/components/schemas/killerTeamName"
+        size:
+          $ref: "#/components/schemas/killerTeamSize"
+        caveId:
+          $ref: "#/components/schemas/caveId"
+      required:
+        - name
+        - size
+        - caveId
+    UpdateKillerTeamRequest:
+      $ref: "#/components/schemas/CreateKillerTeamRequest"
 paths:
   /killer/teams/create/{team-id}/{team-name}/{team-size}/{start-cave-id}:
     post:
-      summary: Create killers team
+      summary: Create killer team
+      operationId: createKillerTeam
       tags:
         - killers
       parameters:
@@ -324,7 +366,8 @@ paths:
                 $ref: "#/components/schemas/ErrorObject"
   /killer/team/{team-id}/move-to-cave/{cave-id}:
     post:
-      summary: Move killers team to a cave
+      summary: Move killer team to a cave
+      operationId: moveKillerTeam
       tags:
         - killers
       parameters:

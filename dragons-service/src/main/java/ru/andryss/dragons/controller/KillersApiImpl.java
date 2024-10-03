@@ -18,7 +18,7 @@ public class KillersApiImpl implements KillersApi {
 
     @Override
     public KillerTeamDto createKillerTeam(CreateKillerTeamRequest request) {
-        return killerService.createTeam(request.getName(), request.getSize(), request.getCaveId());
+        return killerService.createTeam(request.getId(), request.getName(), request.getSize(), request.getCaveId());
     }
 
     @Override
