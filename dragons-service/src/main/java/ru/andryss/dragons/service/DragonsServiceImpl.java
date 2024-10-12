@@ -168,8 +168,9 @@ public class DragonsServiceImpl implements DragonsService {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 
         CriteriaQuery<DragonEntity> query = cb.createQuery(DragonEntity.class);
-        query.where(getPredicates(cb, query, info));
-        query.orderBy(getOrders(cb, query, info));
+        Root<DragonEntity> root = query.from(DragonEntity.class);
+        query.where(getPredicates(cb, root, info));
+        query.orderBy(getOrders(cb, root, info));
 
         TypedQuery<DragonEntity> typedQuery = entityManager.createQuery(query);
         typedQuery.setFirstResult(info.getPageNumber() * info.getPageSize());
@@ -179,9 +180,8 @@ public class DragonsServiceImpl implements DragonsService {
         return mapListToDto(dragons);
     }
 
-    private static Predicate[] getPredicates(CriteriaBuilder cb, CriteriaQuery<DragonEntity> query, SearchDragonInfo info) {
+    private static Predicate[] getPredicates(CriteriaBuilder cb, Root<DragonEntity> root, SearchDragonInfo info) {
         List<Predicate> predicates = new ArrayList<>();
-        Root<DragonEntity> root = query.from(DragonEntity.class);
 
         DragonFilter filter = info.getFilter();
         if (filter == null) return new Predicate[0];
@@ -250,8 +250,7 @@ public class DragonsServiceImpl implements DragonsService {
         if (filter.getLw() != null) predicates.add(cb.lessThan(root.get(property), filter.getLw()));
     }
 
-    private static Order[] getOrders(CriteriaBuilder cb, CriteriaQuery<DragonEntity> query, SearchDragonInfo info) {
-        Root<DragonEntity> root = query.from(DragonEntity.class);
+    private static Order[] getOrders(CriteriaBuilder cb, Root<DragonEntity> root, SearchDragonInfo info) {
         switch (info.getSortOrder()) {
             case ASC -> {
                 return new Order[]{ cb.asc(root.get(info.getSortBy())) };
