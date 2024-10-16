@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import {ChangeEvent, useEffect, useState} from "react";
 import {DragonDto, SearchDragonInfo, searchDragons} from "../services/DragonsService";
 
 export const DragonsList = () => {
@@ -7,26 +7,54 @@ export const DragonsList = () => {
     const [error, setError] = useState<string>("")
     const [dragons, setDragons] = useState<Array<DragonDto>>([])
 
-    const searchInfo: SearchDragonInfo = {
+    const [prevEnabled, setPrevEnabled] = useState<boolean>(false)
+    const [pageSizeStr, setPageSizeStr] = useState<string>("10")
+    const [nextEnabled, setNextEnabled] = useState<boolean>(false)
+
+    const [searchInfo, setSearchInfo] = useState<SearchDragonInfo>({
         pageNumber: 0,
-        pageSize: 30,
+        pageSize: 10,
         sortBy: "id",
         sortOrder: "asc"
-    }
+    })
 
-    const fetchDragons = () => {
+    const fetchDragons = (info: SearchDragonInfo) => {
         setLoading(true)
-        searchDragons(searchInfo, (response) => {
-            setDragons(response)
+        searchDragons(info, (response) => {
+            const dtos = response.dragons;
+            setPrevEnabled(info.pageNumber > 0)
+            setNextEnabled(dtos.length === info.pageSize)
+            setDragons(dtos)
             setError("")
             setLoading(false)
         }, (err) => {
+            setPrevEnabled(false)
+            setNextEnabled(false)
             setError(err.message)
             setLoading(false)
         })
     }
 
-    useEffect(() => fetchDragons(), [])
+    useEffect(() => {
+        fetchDragons(searchInfo)
+    }, [searchInfo])
+
+    const onPrevClicked = () => {
+        setSearchInfo((prev) => ({...prev, pageNumber: prev.pageNumber - 1}))
+    }
+
+    const onPageSizeStrChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const inputValue = e.target.value.slice(0, 2);
+        if (inputValue.length > 0 && /^\d+$/.test(inputValue)) {
+            const pageSize = parseInt(inputValue)
+            if (pageSize > 0) setSearchInfo((prev) => ({...prev, pageSize: pageSize}))
+        }
+        setPageSizeStr(e.target.value)
+    };
+
+    const onNextClicked = () => {
+        setSearchInfo((prev) => ({...prev, pageNumber: prev.pageNumber + 1}))
+    }
 
     return (
         <>
@@ -53,7 +81,7 @@ export const DragonsList = () => {
                             <>
                                 { dragons.length === 0 && <tr><td colSpan={9}>No dragons found</td></tr>}
                                 { dragons.map(dragon =>
-                                    <tr>
+                                    <tr key={dragon.id}>
                                         <td>{dragon.id}</td>
                                         <td>{dragon.name}</td>
                                         <td>{dragon.coordinates.x}</td>
@@ -69,6 +97,9 @@ export const DragonsList = () => {
                         )}
                     </tbody>
                 </table>
+                <button onClick={onPrevClicked} disabled={!prevEnabled}>Prev</button>
+                <input type={"text"} value={pageSizeStr} onChange={onPageSizeStrChange}/>
+                <button onClick={onNextClicked} disabled={!nextEnabled}>Next</button>
             </div>
         </>
     )

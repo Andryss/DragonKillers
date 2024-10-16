@@ -41,7 +41,11 @@ export interface DragonDto {
     cave: DragonCaveDto | null,
 }
 
-export const searchDragons = (searchInfo: SearchDragonInfo, onSuccess: (response: DragonDto[]) => void, onFailure: (err: ErrorObject) => void) => {
+export interface DragonsList {
+    dragons: DragonDto[],
+}
+
+export const searchDragons = (searchInfo: SearchDragonInfo, onSuccess: (response: DragonsList) => void, onFailure: (err: ErrorObject) => void) => {
     const url = `${drgBaseUrl}/dragons:search`
     const bodyStr = parse("SearchDragonInfo", searchInfo)
     console.log(`Send POST ${url} body\n${bodyStr}`)
@@ -49,8 +53,8 @@ export const searchDragons = (searchInfo: SearchDragonInfo, onSuccess: (response
     axios.post(url, bodyStr, config)
         .then((response) => {
             console.log(`Received: ${response.status}\n${response.data}`)
-            const parsed = new XMLParser().parse(response.data)
-            if (response.status === 200) onSuccess(parsed.DragonsList.dragons.dragons)
+            const parsed = new XMLParser({isArray: tagName => tagName === "dragons"}).parse(response.data)
+            if (response.status === 200) onSuccess(parsed.DragonsList === "" ? { dragons: [] } : parsed.DragonsList)
             else onFailure(parsed.ErrorObject)
         })
         .catch((reason) => {
