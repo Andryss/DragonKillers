@@ -9,11 +9,60 @@ export const drgPing = (onSuccess: () => void, onFailure: () => void, onExceptio
     commonPing(`${drgBaseUrl}/ping`, onSuccess, onFailure, onException);
 }
 
+export interface IntFilter {
+    eq: number | null,
+    lw: number | null,
+    gr: number | null,
+}
+
+export interface StringFilter {
+    eq: string | null,
+}
+
+export interface FloatFilter {
+    eq: number | null,
+    lw: number | null,
+    gr: number | null,
+}
+
+export interface CoordinatesFilter {
+    x: FloatFilter,
+    y: FloatFilter,
+}
+
+export interface DateFilter {
+    eq: string | null,
+    lw: string | null,
+    gr: string | null,
+}
+
+export interface BooleanFilter {
+    eq: boolean | null,
+}
+
+export interface DragonCaveFilter {
+    id: IntFilter,
+    numberOfTreasures: FloatFilter,
+}
+
+export interface DragonFilter {
+    id: IntFilter,
+    name: StringFilter,
+    coordinates: CoordinatesFilter,
+    creationDate: DateFilter,
+    age: IntFilter,
+    description: StringFilter,
+    speaking: BooleanFilter,
+    color: StringFilter,
+    cave: DragonCaveFilter,
+}
+
 export interface SearchDragonInfo {
     pageNumber: number,
     pageSize: number,
     sortBy: string,
     sortOrder: string,
+    filter: DragonFilter,
 }
 
 interface ErrorObject {
@@ -47,7 +96,11 @@ export interface DragonsList {
 
 export const searchDragons = (searchInfo: SearchDragonInfo, onSuccess: (response: DragonsList) => void, onFailure: (err: ErrorObject) => void) => {
     const url = `${drgBaseUrl}/dragons:search`
-    const bodyStr = parse("SearchDragonInfo", searchInfo)
+    const bodyStr = parse("SearchDragonInfo", searchInfo, {
+        typeHandlers: {
+            "[object Null]": (_: any): string => ""
+        }
+    })
     console.log(`Send POST ${url} body\n${bodyStr}`)
     const config = { headers: {'Content-Type': 'application/xml'} }
     axios.post(url, bodyStr, config)

@@ -1,5 +1,5 @@
 import {ChangeEvent, useEffect, useState} from "react";
-import {DragonDto, SearchDragonInfo, searchDragons} from "../services/DragonsService";
+import {DragonDto, IntFilter, SearchDragonInfo, searchDragons} from "../services/DragonsService";
 
 export const DragonsList = () => {
 
@@ -11,11 +11,34 @@ export const DragonsList = () => {
     const [pageSizeStr, setPageSizeStr] = useState<string>("10")
     const [nextEnabled, setNextEnabled] = useState<boolean>(false)
 
+    const [showFilters, setShowFilters] = useState<boolean>(false)
+
+    const [idEqual, setIdEqual] = useState<string>("")
+    const [idGreater, setIdGreater] = useState<string>("")
+    const [idLower, setIdLower] = useState<string>("")
+
     const [searchInfo, setSearchInfo] = useState<SearchDragonInfo>({
         pageNumber: 0,
         pageSize: 10,
         sortBy: "id",
-        sortOrder: "asc"
+        sortOrder: "asc",
+        filter: {
+            id: { eq: null, gr: null, lw: null },
+            name: { eq: null },
+            coordinates: {
+                x: { eq: null, gr: null, lw: null },
+                y: { eq: null, gr: null, lw: null },
+            },
+            age: { eq: null, gr: null, lw: null },
+            color: { eq: null },
+            creationDate: { eq: null, gr: null, lw: null },
+            description: { eq: null },
+            speaking: { eq: null },
+            cave: {
+                id: { eq: null, gr: null, lw: null },
+                numberOfTreasures: { eq: null, gr: null, lw: null }
+            },
+        },
     })
 
     const fetchDragons = (info: SearchDragonInfo) => {
@@ -70,10 +93,33 @@ export const DragonsList = () => {
         return (<th onClick={() => onColumnSort(name)}>{name}{sortingSuffix(name)}</th>)
     }
 
+    const onIdChange = (e: ChangeEvent<HTMLInputElement>, type: keyof IntFilter, setFn: (_: string) => void) => {
+        const str = e.target.value;
+        setFn(str)
+        const parsed = parseInt(str)
+        const filtered = (parsed && !isNaN(parsed) ? parsed : null)
+        setSearchInfo((prev) => {
+            const si = {...prev}
+            si.filter.id[type] = filtered
+            return si
+        })
+    }
+
     return (
         <>
             <div>
                 <label style={{fontSize: 20}}>Dragons</label>
+                <button onClick={() => setShowFilters(!showFilters)}>{showFilters ? "Hide Filters" : "Show Filters"}</button>
+                {showFilters && (
+                    <div>
+                        <div style={{display: "flex"}}>
+                            <label>id: </label>
+                            <input type={"number"} value={idEqual} onChange={(e) => onIdChange(e, "eq", setIdEqual)} placeholder={"equal to"}/>
+                            <input type={"number"} value={idGreater} onChange={(e) => onIdChange(e, "gr", setIdGreater)} placeholder={"greater then"}/>
+                            <input type={"number"} value={idLower} onChange={(e) => onIdChange(e, "lw", setIdLower)} placeholder={"lower then"}/>
+                        </div>
+                    </div>
+                )}
                 <table border={1}>
                     <thead>
                     <tr>
@@ -86,6 +132,7 @@ export const DragonsList = () => {
                         {sortableColumnHeader("speaking")}
                         {sortableColumnHeader("color")}
                         <th>cave</th>
+                        <th>numberOfTreasures</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -111,6 +158,7 @@ export const DragonsList = () => {
                                     <td>{dragon.speaking}</td>
                                     <td>{dragon.color}</td>
                                     <td>{dragon.cave?.id}</td>
+                                    <td>{dragon.cave?.numberOfTreasures}</td>
                                 </tr>
                             )}
                         </>

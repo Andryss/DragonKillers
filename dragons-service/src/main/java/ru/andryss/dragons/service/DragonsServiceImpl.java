@@ -239,7 +239,7 @@ public class DragonsServiceImpl implements DragonsService {
     private static void addStringFilterPredicates(CriteriaBuilder cb, List<Predicate> predicates, Root<DragonEntity> root,
                                   StringFilter filter, String property) {
         if (filter == null) return;
-        if (filter.getEq() != null) predicates.add(cb.equal(root.get(property), filter.getEq()));
+        if (filter.getEq() != null && !filter.getEq().isEmpty()) predicates.add(cb.equal(root.get(property), filter.getEq()));
     }
 
     private static void addIntFilterPredicates(CriteriaBuilder cb, List<Predicate> predicates, Root<DragonEntity> root,
