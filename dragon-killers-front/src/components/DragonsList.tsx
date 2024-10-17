@@ -56,49 +56,69 @@ export const DragonsList = () => {
         setSearchInfo((prev) => ({...prev, pageNumber: prev.pageNumber + 1}))
     }
 
+    const onColumnSort = (field: string) => {
+        const direction = (searchInfo.sortBy !== field ? "asc" : (searchInfo.sortOrder === "asc" ? "desc" : "asc"))
+        setSearchInfo((prev) => ({...prev, sortBy: field, sortOrder: direction}))
+    }
+
+    const sortingSuffix = (field: string) => {
+        if (searchInfo.sortBy !== field) return ""
+        return searchInfo.sortOrder === "asc" ? " △" : " ▽"
+    }
+
+    const sortableColumnHeader = (name: string) => {
+        return (<th onClick={() => onColumnSort(name)}>{name}{sortingSuffix(name)}</th>)
+    }
+
     return (
         <>
             <div>
                 <label style={{fontSize: 20}}>Dragons</label>
                 <table border={1}>
                     <thead>
-                        <tr>
-                            <th>id</th>
-                            <th>name</th>
-                            <th>x</th>
-                            <th>y</th>
-                            <th>age</th>
-                            <th>description</th>
-                            <th>speaking</th>
-                            <th>color</th>
-                            <th>cave</th>
-                        </tr>
+                    <tr>
+                        {sortableColumnHeader("id")}
+                        {sortableColumnHeader("name")}
+                        {sortableColumnHeader("x")}
+                        {sortableColumnHeader("y")}
+                        {sortableColumnHeader("age")}
+                        {sortableColumnHeader("description")}
+                        {sortableColumnHeader("speaking")}
+                        {sortableColumnHeader("color")}
+                        <th>cave</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        {loading && (<tr><td colSpan={9}>Loading...</td></tr>)}
-                        {!loading && error !== "" && (<tr><td colSpan={9}>{error}</td></tr>)}
-                        {!loading && error === "" && (
-                            <>
-                                { dragons.length === 0 && <tr><td colSpan={9}>No dragons found</td></tr>}
-                                { dragons.map(dragon =>
-                                    <tr key={dragon.id}>
-                                        <td>{dragon.id}</td>
-                                        <td>{dragon.name}</td>
-                                        <td>{dragon.coordinates.x}</td>
-                                        <td>{dragon.coordinates.y}</td>
-                                        <td>{dragon.age}</td>
-                                        <td>{dragon.description}</td>
-                                        <td>{dragon.speaking}</td>
-                                        <td>{dragon.color}</td>
-                                        <td>{dragon.cave?.id}</td>
-                                    </tr>
-                                ) }
-                            </>
-                        )}
+                    {loading && (<tr>
+                        <td colSpan={9}>Loading...</td>
+                    </tr>)}
+                    {!loading && error !== "" && (<tr>
+                        <td colSpan={9}>{error}</td>
+                    </tr>)}
+                    {!loading && error === "" && (
+                        <>
+                            {dragons.length === 0 && <tr>
+                                <td colSpan={9}>No dragons found</td>
+                            </tr>}
+                            {dragons.map(dragon =>
+                                <tr key={dragon.id}>
+                                    <td>{dragon.id}</td>
+                                    <td>{dragon.name}</td>
+                                    <td>{dragon.coordinates.x}</td>
+                                    <td>{dragon.coordinates.y}</td>
+                                    <td>{dragon.age}</td>
+                                    <td>{dragon.description}</td>
+                                    <td>{dragon.speaking}</td>
+                                    <td>{dragon.color}</td>
+                                    <td>{dragon.cave?.id}</td>
+                                </tr>
+                            )}
+                        </>
+                    )}
                     </tbody>
                 </table>
                 <button onClick={onPrevClicked} disabled={!prevEnabled}>Prev</button>
-                <input type={"text"} value={pageSizeStr} onChange={onPageSizeStrChange}/>
+                <input type={"text"} value={pageSizeStr} onChange={onPageSizeStrChange} />
                 <button onClick={onNextClicked} disabled={!nextEnabled}>Next</button>
             </div>
         </>
