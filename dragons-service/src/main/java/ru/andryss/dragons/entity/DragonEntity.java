@@ -3,6 +3,8 @@ package ru.andryss.dragons.entity;
 import java.time.Instant;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import lombok.Getter;
@@ -25,6 +27,7 @@ public class DragonEntity {
     Integer age;
     String description;
     boolean speaking;
+    @Enumerated(EnumType.STRING)
     Color color;
     Integer caveId;
 }

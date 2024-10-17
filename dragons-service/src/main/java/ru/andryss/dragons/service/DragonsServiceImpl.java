@@ -27,6 +27,7 @@ import ru.andryss.dragons.model.CoordinatesFilter;
 import ru.andryss.dragons.model.DateFilter;
 import ru.andryss.dragons.model.DescriptionInfo;
 import ru.andryss.dragons.model.DragonCaveDto;
+import ru.andryss.dragons.model.DragonCaveFilter;
 import ru.andryss.dragons.model.DragonDto;
 import ru.andryss.dragons.model.DragonFilter;
 import ru.andryss.dragons.model.FloatFilter;
@@ -201,13 +202,11 @@ public class DragonsServiceImpl implements DragonsService {
         addBooleanFilterPredicates(cb, predicates, root, filter.getSpeaking(), "speaking");
         addStringFilterPredicates(cb, predicates, root, filter.getColor(), "color");
 
-        /*
         DragonCaveFilter caveFilter = filter.getCave();
         if (caveFilter != null) {
             addIntFilterPredicates(cb, predicates, root, caveFilter.getId(), "id");
-            addFloatFilterPredicates(cb, predicates, root, caveFilter.getNumberOfTreasures(), "numberOfTreasures");
+            // addFloatFilterPredicates(cb, predicates, root, caveFilter.getNumberOfTreasures(), "numberOfTreasures");
         }
-        */
 
         return predicates.toArray(new Predicate[0]);
     }

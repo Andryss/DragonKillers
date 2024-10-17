@@ -94,6 +94,8 @@ export interface DragonsList {
     dragons: DragonDto[],
 }
 
+export const dragonColors = ["YELLOW", "ORANGE", "WHITE", "BROWN"]
+
 export const searchDragons = (searchInfo: SearchDragonInfo, onSuccess: (response: DragonsList) => void, onFailure: (err: ErrorObject) => void) => {
     const url = `${drgBaseUrl}/dragons:search`
     const bodyStr = parse("SearchDragonInfo", searchInfo, {

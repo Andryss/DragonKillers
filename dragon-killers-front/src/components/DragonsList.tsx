@@ -1,5 +1,18 @@
 import {ChangeEvent, useEffect, useState} from "react";
-import {DragonDto, IntFilter, SearchDragonInfo, searchDragons} from "../services/DragonsService";
+import {
+    BooleanFilter, dragonColors,
+    DragonDto,
+    FloatFilter,
+    IntFilter,
+    SearchDragonInfo,
+    searchDragons,
+    StringFilter
+} from "../services/DragonsService";
+import {IntEqGrLw } from "./filters/IntEqGrLw";
+import {StrEq} from "./filters/StrEq";
+import {FloatEqGrLw} from "./filters/FloatEqGrLw";
+import {BoolEq} from "./filters/BoolEq";
+import {EnumEq} from "./filters/EnumEq";
 
 export const DragonsList = () => {
 
@@ -12,10 +25,6 @@ export const DragonsList = () => {
     const [nextEnabled, setNextEnabled] = useState<boolean>(false)
 
     const [showFilters, setShowFilters] = useState<boolean>(false)
-
-    const [idEqual, setIdEqual] = useState<string>("")
-    const [idGreater, setIdGreater] = useState<string>("")
-    const [idLower, setIdLower] = useState<string>("")
 
     const [searchInfo, setSearchInfo] = useState<SearchDragonInfo>({
         pageNumber: 0,
@@ -93,16 +102,72 @@ export const DragonsList = () => {
         return (<th onClick={() => onColumnSort(name)}>{name}{sortingSuffix(name)}</th>)
     }
 
-    const onIdChange = (e: ChangeEvent<HTMLInputElement>, type: keyof IntFilter, setFn: (_: string) => void) => {
-        const str = e.target.value;
-        setFn(str)
-        const parsed = parseInt(str)
-        const filtered = (parsed && !isNaN(parsed) ? parsed : null)
+    const setIntFilter = (extractor: (_: SearchDragonInfo) => IntFilter, type: keyof IntFilter, val: number | null) => {
         setSearchInfo((prev) => {
             const si = {...prev}
-            si.filter.id[type] = filtered
+            extractor(si)[type] = val
             return si
         })
+    }
+
+    const setStrFilter = (extractor: (_: SearchDragonInfo) => StringFilter, type: keyof StringFilter, val: string | null) => {
+        setSearchInfo((prev) => {
+            const si = {...prev}
+            extractor(si)[type] = val
+            return si
+        })
+    }
+
+    const setFloatFilter = (extractor: (_: SearchDragonInfo) => FloatFilter, type: keyof FloatFilter, val: number | null) => {
+        setSearchInfo((prev) => {
+            const si = {...prev}
+            extractor(si)[type] = val
+            return si
+        })
+    }
+
+    const setBoolFilter = (extractor: (_: SearchDragonInfo) => BooleanFilter, type: keyof BooleanFilter, val: boolean | null) => {
+        setSearchInfo((prev) => {
+            const si = {...prev}
+            extractor(si)[type] = val
+            return si
+        })
+    }
+
+    const setId = (type: keyof IntFilter, val: number | null) => {
+        setIntFilter((sdi) => sdi.filter.id, type, val)
+    }
+
+    const setName = (type: keyof StringFilter, val: string | null) => {
+        setStrFilter((sdi) => sdi.filter.name, type, val)
+    }
+
+    const setX = (type: keyof FloatFilter, val: number | null) => {
+        setFloatFilter((sdi) => sdi.filter.coordinates.x, type, val)
+    }
+
+    const setY = (type: keyof FloatFilter, val: number | null) => {
+        setFloatFilter((sdi) => sdi.filter.coordinates.y, type, val)
+    }
+
+    const setAge = (type: keyof IntFilter, val: number | null) => {
+        setIntFilter((sdi) => sdi.filter.age, type, val)
+    }
+
+    const setDescription = (type: keyof StringFilter, val: string | null) => {
+        setStrFilter((sdi) => sdi.filter.description, type, val)
+    }
+
+    const setSpeaking = (type: keyof BooleanFilter, val: boolean | null) => {
+        setBoolFilter((sdi) => sdi.filter.speaking, type, val)
+    }
+
+    const setColor = (type: keyof StringFilter, val: string | null) => {
+        setStrFilter((sdi) => sdi.filter.color, type, val)
+    }
+
+    const setCave = (type: keyof IntFilter, val: number | null) => {
+        setIntFilter((sdi) => sdi.filter.cave.id, type, val)
     }
 
     return (
@@ -111,14 +176,55 @@ export const DragonsList = () => {
                 <label style={{fontSize: 20}}>Dragons</label>
                 <button onClick={() => setShowFilters(!showFilters)}>{showFilters ? "Hide Filters" : "Show Filters"}</button>
                 {showFilters && (
-                    <div>
+                    <>
                         <div style={{display: "flex"}}>
                             <label>id: </label>
-                            <input type={"number"} value={idEqual} onChange={(e) => onIdChange(e, "eq", setIdEqual)} placeholder={"equal to"}/>
-                            <input type={"number"} value={idGreater} onChange={(e) => onIdChange(e, "gr", setIdGreater)} placeholder={"greater then"}/>
-                            <input type={"number"} value={idLower} onChange={(e) => onIdChange(e, "lw", setIdLower)} placeholder={"lower then"}/>
+                            <IntEqGrLw onEqualSet={(val: number | null) => setId("eq", val)}
+                                onGreaterSet={(val: number | null) => setId("gr", val)}
+                                onLowerSet={(val: number | null) => setId("lw", val)}/>
                         </div>
-                    </div>
+                        <div style={{display: "flex"}}>
+                            <label>name: </label>
+                            <StrEq onEqualSet={(val: string | null) => setName("eq", val)}/>
+                        </div>
+                        <div style={{display: "flex"}}>
+                            <label>x: </label>
+                            <FloatEqGrLw onEqualSet={(val: number | null) => setX("eq", val)}
+                                onGreaterSet={(val: number | null) => setX("gr", val)}
+                                onLowerSet={(val: number | null) => setX("lw", val)}/>
+                        </div>
+                        <div style={{display: "flex"}}>
+                            <label>y: </label>
+                            <FloatEqGrLw onEqualSet={(val: number | null) => setY("eq", val)}
+                                onGreaterSet={(val: number | null) => setY("gr", val)}
+                                onLowerSet={(val: number | null) => setY("lw", val)}/>
+                        </div>
+                        <div style={{display: "flex"}}>
+                            <label>age: </label>
+                            <IntEqGrLw onEqualSet={(val: number | null) => setAge("eq", val)}
+                                onGreaterSet={(val: number | null) => setAge("gr", val)}
+                                onLowerSet={(val: number | null) => setAge("lw", val)}/>
+                        </div>
+                        <div style={{display: "flex"}}>
+                            <label>description: </label>
+                            <StrEq onEqualSet={(val: string | null) => setDescription("eq", val)}/>
+                        </div>
+                        <div style={{display: "flex"}}>
+                            <label>speaking: </label>
+                            <BoolEq onEqualSet={(val: boolean | null) => setSpeaking("eq", val)}/>
+                        </div>
+                        <div style={{display: "flex"}}>
+                            <label>color: </label>
+                            <EnumEq values={dragonColors}
+                                onEqualSet={(val: string | null) => setColor("eq", val)}/>
+                        </div>
+                        <div style={{display: "flex"}}>
+                            <label>cave: </label>
+                            <IntEqGrLw onEqualSet={(val: number | null) => setCave("eq", val)}
+                                onGreaterSet={(val: number | null) => setCave("gr", val)}
+                                onLowerSet={(val: number | null) => setCave("lw", val)}/>
+                        </div>
+                    </>
                 )}
                 <table border={1}>
                     <thead>
@@ -131,21 +237,21 @@ export const DragonsList = () => {
                         {sortableColumnHeader("description")}
                         {sortableColumnHeader("speaking")}
                         {sortableColumnHeader("color")}
-                        <th>cave</th>
+                        {sortableColumnHeader("caveId")}
                         <th>numberOfTreasures</th>
                     </tr>
                     </thead>
                     <tbody>
                     {loading && (<tr>
-                        <td colSpan={9}>Loading...</td>
+                        <td colSpan={10}>Loading...</td>
                     </tr>)}
                     {!loading && error !== "" && (<tr>
-                        <td colSpan={9}>{error}</td>
+                        <td colSpan={10}>{error}</td>
                     </tr>)}
                     {!loading && error === "" && (
                         <>
                             {dragons.length === 0 && <tr>
-                                <td colSpan={9}>No dragons found</td>
+                                <td colSpan={10}>No dragons found</td>
                             </tr>}
                             {dragons.map(dragon =>
                                 <tr key={dragon.id}>
@@ -155,7 +261,7 @@ export const DragonsList = () => {
                                     <td>{dragon.coordinates.y}</td>
                                     <td>{dragon.age}</td>
                                     <td>{dragon.description}</td>
-                                    <td>{dragon.speaking}</td>
+                                    <td>{dragon.speaking ? "true" : "false"}</td>
                                     <td>{dragon.color}</td>
                                     <td>{dragon.cave?.id}</td>
                                     <td>{dragon.cave?.numberOfTreasures}</td>
