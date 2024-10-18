@@ -7,6 +7,9 @@ import {DragonDto} from "../services/DragonsService";
 import {DragonByColorCounter} from "./DragonByColorCounter";
 import {DragonWithGreaterCaveFinder} from "./DragonWithGreaterCaveFinder";
 import {DragonByDescriptionGrouper} from "./DragonByDescriptionGrouper";
+import {KillerTeamsList} from "./KillerTeamsList";
+import {CreateKillerTeam} from "./CreateKillerTeam";
+import {KillerTeamMover} from "./KillerTeamMover";
 
 export const HomePage = () => {
 
@@ -34,6 +37,9 @@ export const HomePage = () => {
             <DragonByColorCounter/>
             <DragonWithGreaterCaveFinder/>
             <DragonByDescriptionGrouper/>
+            <KillerTeamsList/>
+            <CreateKillerTeam/>
+            <KillerTeamMover/>
             <Modal isOpen={modalOpen} onClose={closeModal}>
                 <CreateDragon onSuccess={closeModal} editable={editable}/>
             </Modal>

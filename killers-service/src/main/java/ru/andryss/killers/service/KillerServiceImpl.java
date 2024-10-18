@@ -11,10 +11,12 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import ru.andryss.killers.exception.InternalServerErrorException;
 import ru.andryss.killers.model.CreateKillerTeamRequest;
+import ru.andryss.killers.model.ErrorObject;
 import ru.andryss.killers.model.KillerTeamDto;
 
 import static org.springframework.http.HttpMethod.POST;
@@ -69,6 +71,10 @@ public class KillerServiceImpl implements KillerService {
         ResponseEntity<String> responseEntity;
         try {
             responseEntity = restTemplate.getForEntity(url, String.class);
+        } catch (HttpClientErrorException e) {
+            String responseString = e.getResponseBodyAsString();
+            ErrorObject errorObject = readAsXml(responseString, ErrorObject.class);
+            throw new InternalServerErrorException(errorObject.getMessage());
         } catch (RestClientException e) {
             log.error("Catch exception while sending http request", e);
             throw new InternalServerErrorException(e.getMessage());
@@ -85,6 +91,10 @@ public class KillerServiceImpl implements KillerService {
         ResponseEntity<String> responseEntity;
         try {
             responseEntity = restTemplate.exchange(url, method, httpEntity, String.class);
+        } catch (HttpClientErrorException e) {
+            String responseString = e.getResponseBodyAsString();
+            ErrorObject errorObject = readAsXml(responseString, ErrorObject.class);
+            throw new InternalServerErrorException(errorObject.getMessage());
         } catch (RestClientException e) {
             log.error("Catch exception while sending http request", e);
             throw new InternalServerErrorException(e.getMessage());

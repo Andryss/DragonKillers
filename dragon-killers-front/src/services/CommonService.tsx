@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const commonPing = (url: string, onSuccess: () => void, onFailure: () => void, onException: () => void) => {
+export const commonPing = (url: string, onSuccess: () => void, onFailure: () => void, onException: () => void) => {
     console.log(`Send GET ${url}`)
     axios.get(url)
         .then((response) => {
@@ -16,4 +16,6 @@ const commonPing = (url: string, onSuccess: () => void, onFailure: () => void, o
         })
 }
 
-export default commonPing;
+export interface ErrorObject {
+    message: string,
+}

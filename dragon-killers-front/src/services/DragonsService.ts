@@ -1,4 +1,4 @@
-import commonPing from "./CommonService";
+import {commonPing, ErrorObject} from "./CommonService";
 import axios from "axios";
 import {Absent, parse} from "js2xmlparser";
 import {XMLParser} from "fast-xml-parser";
@@ -63,10 +63,6 @@ export interface SearchDragonInfo {
     sortBy: string,
     sortOrder: string,
     filter: DragonFilter,
-}
-
-interface ErrorObject {
-    message: string,
 }
 
 interface CoordinatesDto {
@@ -254,6 +250,36 @@ export const groupDragonsByDescription = (onSuccess: (response: GroupByDescripti
             console.log(`Received: ${response.status}\n${response.data}`)
             const parsed = new XMLParser({isArray: tagName => tagName === "descriptions"}).parse(response.data)
             onSuccess(parsed.GroupByDescriptionResponse === "" ? { descriptions: [] } : parsed.GroupByDescriptionResponse)
+        })
+        .catch((reason) => {
+            console.log(`Caught ${reason}`)
+            if (axios.isAxiosError(reason) && reason.response) {
+                const parsed = new XMLParser().parse(reason.response.data)
+                onFailure(parsed.ErrorObject)
+            }
+        })
+}
+
+export interface KillerTeamDto {
+    id: number,
+    name: string,
+    size: number,
+    caveId: number,
+}
+
+
+export interface KillerTeamDtoList {
+    teams: KillerTeamDto[],
+}
+
+export const getKillerTeams = (onSuccess: (response: KillerTeamDtoList) => void, onFailure: (err: ErrorObject) => void) => {
+    const url = `${drgBaseUrl}/killers`
+    console.log(`Send GET ${url}`)
+    axios.get(url)
+        .then((response) => {
+            console.log(`Received: ${response.status}\n${response.data}`)
+            const parsed = new XMLParser({isArray: tagName => tagName === "teams"}).parse(response.data)
+            onSuccess(parsed.KillerTeamDtoList === "" ? { teams: [] } : parsed.KillerTeamDtoList)
         })
         .catch((reason) => {
             console.log(`Caught ${reason}`)

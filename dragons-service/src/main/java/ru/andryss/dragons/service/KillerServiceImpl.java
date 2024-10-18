@@ -24,10 +24,10 @@ public class KillerServiceImpl implements KillerService {
     @Override
     public KillerTeamDto createTeam(Integer id, String name, Integer size, Integer caveId) {
         if (killerTeamRepository.findById(id).isPresent()) {
-            throw new ConflictException(id.toString());
+            throw new ConflictException("killer team with id %s exist".formatted(id));
         }
         caveRepository.findById(caveId)
-                .orElseThrow(() -> new NotFoundException(caveId.toString()));
+                .orElseThrow(() -> new NotFoundException("cave %s not found".formatted(caveId)));
 
         KillerTeamEntity team = new KillerTeamEntity();
         team.setId(id);
@@ -43,7 +43,7 @@ public class KillerServiceImpl implements KillerService {
     @Override
     public KillerTeamDto getById(Integer id) {
         KillerTeamEntity team = killerTeamRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(id.toString()));
+                .orElseThrow(() -> new NotFoundException("killer team %s does not exist".formatted(id)));
 
         return mapToDto(team);
     }
@@ -51,10 +51,10 @@ public class KillerServiceImpl implements KillerService {
     @Override
     public KillerTeamDto updateById(Integer id, String name, Integer size, Integer caveId) {
         KillerTeamEntity team = killerTeamRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(id.toString()));
+                .orElseThrow(() -> new NotFoundException("killer team %s does not exist".formatted(id)));
 
         caveRepository.findById(caveId)
-                .orElseThrow(() -> new NotFoundException(caveId.toString()));
+                .orElseThrow(() -> new NotFoundException("cave %s not found".formatted(caveId)));
 
         team.setName(name);
         team.setSize(size);
