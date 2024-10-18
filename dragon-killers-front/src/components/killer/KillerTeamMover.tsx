@@ -1,5 +1,5 @@
 import {useState} from "react";
-import {moveKillerTeam} from "../services/KillersService";
+import {moveKillerTeam} from "../../services/KillersService";
 
 export const KillerTeamMover = () => {
 

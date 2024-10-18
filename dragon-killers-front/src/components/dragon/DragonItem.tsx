@@ -1,4 +1,4 @@
-import {DragonDto} from "../services/DragonsService";
+import {DragonDto} from "../../services/DragonsService";
 
 interface DragonItemProps {
     dragon: DragonDto

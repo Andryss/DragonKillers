@@ -1,4 +1,4 @@
-import {countDragonsWithGreaterCave, DragonDto, GreaterCaveRequest} from "../services/DragonsService";
+import {countDragonsWithGreaterCave, DragonDto, GreaterCaveRequest} from "../../services/DragonsService";
 import {useState} from "react";
 
 export const DragonWithGreaterCaveFinder = () => {

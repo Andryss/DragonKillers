@@ -1,5 +1,5 @@
 import {useState} from "react";
-import {getKillerTeams, KillerTeamDto} from "../services/DragonsService";
+import {getKillerTeams, KillerTeamDto} from "../../services/DragonsService";
 
 export const KillerTeamsList = () => {
 

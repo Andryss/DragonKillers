@@ -1,4 +1,4 @@
-import {countDragonsByColor, dragonColors} from "../services/DragonsService";
+import {countDragonsByColor, dragonColors} from "../../services/DragonsService";
 import {useState} from "react";
 
 export const DragonByColorCounter = () => {

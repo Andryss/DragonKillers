@@ -1,4 +1,4 @@
-import {DescriptionInfo, groupDragonsByDescription} from "../services/DragonsService";
+import {DescriptionInfo, groupDragonsByDescription} from "../../services/DragonsService";
 import {useState} from "react";
 
 export const DragonByDescriptionGrouper = () => {

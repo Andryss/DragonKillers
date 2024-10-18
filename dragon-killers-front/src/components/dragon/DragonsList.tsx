@@ -7,12 +7,12 @@ import {
     SearchDragonInfo,
     searchDragons,
     StringFilter
-} from "../services/DragonsService";
-import {IntEqGrLw } from "./filters/IntEqGrLw";
-import {StrEq} from "./filters/StrEq";
-import {FloatEqGrLw} from "./filters/FloatEqGrLw";
-import {BoolEq} from "./filters/BoolEq";
-import {EnumEq} from "./filters/EnumEq";
+} from "../../services/DragonsService";
+import {IntEqGrLw } from "../filters/IntEqGrLw";
+import {StrEq} from "../filters/StrEq";
+import {FloatEqGrLw} from "../filters/FloatEqGrLw";
+import {BoolEq} from "../filters/BoolEq";
+import {EnumEq} from "../filters/EnumEq";
 
 interface Props {
     onNew: () => void,

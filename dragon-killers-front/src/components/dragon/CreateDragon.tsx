@@ -6,7 +6,7 @@ import {
     dragonColors,
     DragonDto,
     updateDragon
-} from "../services/DragonsService";
+} from "../../services/DragonsService";
 
 interface Props {
     onSuccess: () => void,
