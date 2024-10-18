@@ -4,6 +4,9 @@ import {useState} from "react";
 import {Modal} from "./Modal";
 import {CreateDragon} from "./CreateDragon";
 import {DragonDto} from "../services/DragonsService";
+import {DragonByColorCounter} from "./DragonByColorCounter";
+import {DragonWithGreaterCaveFinder} from "./DragonWithGreaterCaveFinder";
+import {DragonByDescriptionGrouper} from "./DragonByDescriptionGrouper";
 
 export const HomePage = () => {
 
@@ -28,6 +31,9 @@ export const HomePage = () => {
         <>
             <ServicesStatusBar/>
             <DragonsList onNew={onDragonCreate} onEdit={onDragonEdit}/>
+            <DragonByColorCounter/>
+            <DragonWithGreaterCaveFinder/>
+            <DragonByDescriptionGrouper/>
             <Modal isOpen={modalOpen} onClose={closeModal}>
                 <CreateDragon onSuccess={closeModal} editable={editable}/>
             </Modal>

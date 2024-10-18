@@ -194,3 +194,72 @@ export const searchDragons = (searchInfo: SearchDragonInfo, onSuccess: (response
             }
         })
 }
+
+export const countDragonsByColor = (color: string, onSuccess: (response: number) => void, onFailure: (err: ErrorObject) => void) => {
+    const url = `${drgBaseUrl}/dragons:countByColor`
+    console.log(`Send POST ${url} color ${color}`)
+    const params = {params: {color: color}}
+    axios.post(url, undefined, params)
+        .then((response) => {
+            console.log(`Received: ${response.status}\n${response.data}`)
+            const parsed = new XMLParser().parse(response.data)
+            onSuccess(parsed.Integer)
+        })
+        .catch((reason) => {
+            console.log(`Caught ${reason}`)
+            if (axios.isAxiosError(reason) && reason.response) {
+                const parsed = new XMLParser().parse(reason.response.data)
+                onFailure(parsed.ErrorObject)
+            }
+        })
+}
+
+export interface GreaterCaveRequest {
+    numberOfTreasures: number,
+}
+
+export const countDragonsWithGreaterCave = (request: GreaterCaveRequest, onSuccess: (response: DragonsList) => void, onFailure: (err: ErrorObject) => void) => {
+    const url = `${drgBaseUrl}/dragons:countWithGreaterCave`
+    const bodyStr = parse("GreaterCaveRequest", request, parseOptions)
+    console.log(`Send POST ${url} body\n${bodyStr}`)
+    axios.post(url, bodyStr, xmlReqBodyConf)
+        .then((response) => {
+            console.log(`Received: ${response.status}\n${response.data}`)
+            const parsed = new XMLParser({isArray: tagName => tagName === "dragons"}).parse(response.data)
+            onSuccess(parsed.DragonsList === "" ? { dragons: [] } : parsed.DragonsList)
+        })
+        .catch((reason) => {
+            console.log(`Caught ${reason}`)
+            if (axios.isAxiosError(reason) && reason.response) {
+                const parsed = new XMLParser().parse(reason.response.data)
+                onFailure(parsed.ErrorObject)
+            }
+        })
+}
+
+export interface DescriptionInfo {
+    description: string,
+    count: number,
+}
+
+export interface GroupByDescriptionResponse {
+    descriptions: DescriptionInfo[],
+}
+
+export const groupDragonsByDescription = (onSuccess: (response: GroupByDescriptionResponse) => void, onFailure: (err: ErrorObject) => void) => {
+    const url = `${drgBaseUrl}/dragons:groupByDescription`
+    console.log(`Send POST ${url}`)
+    axios.post(url)
+        .then((response) => {
+            console.log(`Received: ${response.status}\n${response.data}`)
+            const parsed = new XMLParser({isArray: tagName => tagName === "descriptions"}).parse(response.data)
+            onSuccess(parsed.GroupByDescriptionResponse === "" ? { descriptions: [] } : parsed.GroupByDescriptionResponse)
+        })
+        .catch((reason) => {
+            console.log(`Caught ${reason}`)
+            if (axios.isAxiosError(reason) && reason.response) {
+                const parsed = new XMLParser().parse(reason.response.data)
+                onFailure(parsed.ErrorObject)
+            }
+        })
+}
