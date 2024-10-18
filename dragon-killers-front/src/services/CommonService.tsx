@@ -5,12 +5,14 @@ const commonPing = (url: string, onSuccess: () => void, onFailure: () => void, o
     axios.get(url)
         .then((response) => {
             console.log(`Received ${response.status} ${response.data}`)
-            if (response.status === 200) onSuccess()
-            else onFailure()
+            onSuccess()
         })
         .catch((reason) => {
             console.log(`Caught ${reason}`)
-            onException()
+            if (axios.isAxiosError(reason)) {
+                if (reason.response) onFailure()
+                else onException()
+            }
         })
 }
 

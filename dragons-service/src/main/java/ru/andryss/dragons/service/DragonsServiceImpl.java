@@ -264,7 +264,8 @@ public class DragonsServiceImpl implements DragonsService {
     private List<DragonDto> mapListToDto(List<DragonEntity> foundDragons) {
         List<DragonDto> dragons = new ArrayList<>();
         for (DragonEntity dragon : foundDragons) {
-            CaveEntity cave = caveRepository.findById(dragon.getCaveId()).orElse(null);
+            Integer caveId = dragon.getCaveId();
+            CaveEntity cave = (caveId == null ? null : caveRepository.findById(caveId).orElse(null));
             dragons.add(mapToDto(dragon, cave));
         }
         return dragons;

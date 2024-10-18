@@ -1,6 +1,6 @@
 import {ChangeEvent, useEffect, useState} from "react";
 import {
-    BooleanFilter, dragonColors,
+    BooleanFilter, deleteDragon, dragonColors,
     DragonDto,
     FloatFilter,
     IntFilter,
@@ -14,7 +14,12 @@ import {FloatEqGrLw} from "./filters/FloatEqGrLw";
 import {BoolEq} from "./filters/BoolEq";
 import {EnumEq} from "./filters/EnumEq";
 
-export const DragonsList = () => {
+interface Props {
+    onNew: () => void,
+    onEdit: (_: DragonDto) => void,
+}
+
+export const DragonsList = (props: Props) => {
 
     const [loading, setLoading] = useState<boolean>(false)
     const [error, setError] = useState<string>("")
@@ -170,10 +175,19 @@ export const DragonsList = () => {
         setIntFilter((sdi) => sdi.filter.cave.id, type, val)
     }
 
+    const onDeleteClick = (dto: DragonDto) => {
+        deleteDragon(dto.id, () => {
+            fetchDragons(searchInfo)
+        }, (err) => {
+            setError(err.message)
+        })
+    }
+
     return (
         <>
             <div>
                 <label style={{fontSize: 20}}>Dragons</label>
+                <button onClick={props.onNew}>New</button>
                 <button onClick={() => setShowFilters(!showFilters)}>{showFilters ? "Hide Filters" : "Show Filters"}</button>
                 {showFilters && (
                     <>
@@ -239,6 +253,7 @@ export const DragonsList = () => {
                         {sortableColumnHeader("color")}
                         {sortableColumnHeader("caveId")}
                         <th>numberOfTreasures</th>
+                        <th>actions</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -265,6 +280,10 @@ export const DragonsList = () => {
                                     <td>{dragon.color}</td>
                                     <td>{dragon.cave?.id}</td>
                                     <td>{dragon.cave?.numberOfTreasures}</td>
+                                    <td>
+                                        <button onClick={() => props.onEdit(dragon)}>Edit</button>
+                                        <button onClick={() => onDeleteClick(dragon)}>Delete</button>
+                                    </td>
                                 </tr>
                             )}
                         </>

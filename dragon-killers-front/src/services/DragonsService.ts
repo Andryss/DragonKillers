@@ -1,6 +1,6 @@
 import commonPing from "./CommonService";
 import axios from "axios";
-import {parse} from "js2xmlparser";
+import {Absent, parse} from "js2xmlparser";
 import {XMLParser} from "fast-xml-parser";
 
 const drgBaseUrl = "http://localhost:8080/dragons_service_war"
@@ -94,25 +94,103 @@ export interface DragonsList {
     dragons: DragonDto[],
 }
 
+export interface CreateCoordinates {
+    x: number,
+    y: number,
+}
+
+export interface CreateDragonCave {
+    numberOfTreasures: number,
+}
+
+export interface CreateDragonRequest {
+    name: string,
+    coordinates: CreateCoordinates,
+    age: number | null,
+    description: string,
+    speaking: boolean,
+    color: string,
+    cave: CreateDragonCave | null
+}
+
 export const dragonColors = ["YELLOW", "ORANGE", "WHITE", "BROWN"]
 
-export const searchDragons = (searchInfo: SearchDragonInfo, onSuccess: (response: DragonsList) => void, onFailure: (err: ErrorObject) => void) => {
-    const url = `${drgBaseUrl}/dragons:search`
-    const bodyStr = parse("SearchDragonInfo", searchInfo, {
-        typeHandlers: {
-            "[object Null]": (_: any): string => ""
-        }
-    })
+const parseOptions = {
+    typeHandlers: {
+        "[object Null]": (_: any) => Absent.instance
+    }
+}
+
+const xmlReqBodyConf = { headers: {'Content-Type': 'application/xml'} }
+
+export const createDragon = (request: CreateDragonRequest, onSuccess: () => void, onFailure: (err: ErrorObject) => void) => {
+    const url = `${drgBaseUrl}/dragons`
+    const bodyStr = parse("CreateDragonRequest", request, parseOptions)
     console.log(`Send POST ${url} body\n${bodyStr}`)
-    const config = { headers: {'Content-Type': 'application/xml'} }
-    axios.post(url, bodyStr, config)
+    axios.post(url, bodyStr, xmlReqBodyConf)
         .then((response) => {
             console.log(`Received: ${response.status}\n${response.data}`)
-            const parsed = new XMLParser({isArray: tagName => tagName === "dragons"}).parse(response.data)
-            if (response.status === 200) onSuccess(parsed.DragonsList === "" ? { dragons: [] } : parsed.DragonsList)
-            else onFailure(parsed.ErrorObject)
+            onSuccess()
         })
         .catch((reason) => {
             console.log(`Caught ${reason}`)
+            if (axios.isAxiosError(reason) && reason.response) {
+                const parsed = new XMLParser().parse(reason.response.data)
+                onFailure(parsed.ErrorObject)
+            }
+        })
+}
+
+export const updateDragon = (id: number, request: CreateDragonRequest, onSuccess: () => void, onFailure: (err: ErrorObject) => void) => {
+    const url = `${drgBaseUrl}/dragons/${id}`
+    const bodyStr = parse("CreateDragonRequest", request, parseOptions)
+    console.log(`Send PUT ${url} body\n${bodyStr}`)
+    axios.put(url, bodyStr, xmlReqBodyConf)
+        .then((response) => {
+            console.log(`Received: ${response.status}\n${response.data}`)
+            onSuccess()
+        })
+        .catch((reason) => {
+            console.log(`Caught ${reason}`)
+            if (axios.isAxiosError(reason) && reason.response) {
+                const parsed = new XMLParser().parse(reason.response.data)
+                onFailure(parsed.ErrorObject)
+            }
+        })
+}
+
+export const deleteDragon = (id: number, onSuccess: () => void, onFailure: (err: ErrorObject) => void) => {
+    const url = `${drgBaseUrl}/dragons/${id}`
+    console.log(`Send DELETE ${url}`)
+    axios.delete(url)
+        .then((response) => {
+            console.log(`Received: ${response.status}\n${response.data}`)
+            onSuccess()
+        })
+        .catch((reason) => {
+            console.log(`Caught ${reason}`)
+            if (axios.isAxiosError(reason) && reason.response) {
+                const parsed = new XMLParser().parse(reason.response.data)
+                onFailure(parsed.ErrorObject)
+            }
+        })
+}
+
+export const searchDragons = (searchInfo: SearchDragonInfo, onSuccess: (response: DragonsList) => void, onFailure: (err: ErrorObject) => void) => {
+    const url = `${drgBaseUrl}/dragons:search`
+    const bodyStr = parse("SearchDragonInfo", searchInfo, parseOptions)
+    console.log(`Send POST ${url} body\n${bodyStr}`)
+    axios.post(url, bodyStr, xmlReqBodyConf)
+        .then((response) => {
+            console.log(`Received: ${response.status}\n${response.data}`)
+            const parsed = new XMLParser({isArray: tagName => tagName === "dragons"}).parse(response.data)
+            onSuccess(parsed.DragonsList === "" ? { dragons: [] } : parsed.DragonsList)
+        })
+        .catch((reason) => {
+            console.log(`Caught ${reason}`)
+            if (axios.isAxiosError(reason) && reason.response) {
+                const parsed = new XMLParser().parse(reason.response.data)
+                onFailure(parsed.ErrorObject)
+            }
         })
 }
