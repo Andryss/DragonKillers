@@ -2,7 +2,7 @@ import axios from "axios";
 import {ErrorObject} from "./CommonService";
 import {XMLParser} from "fast-xml-parser";
 
-const drgSoapUrl = "http://localhost:10010/ws"
+const drgSoapUrl = "https://localhost:10010/ws"
 
 const soapReqConfig = {headers: {"Content-Type": "text/xml"}};
 
