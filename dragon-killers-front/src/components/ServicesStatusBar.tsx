@@ -1,11 +1,13 @@
 import {useEffect, useState} from "react";
 import {drgPing} from "../services/DragonsService";
 import {klrPing} from "../services/KillersService";
+import {drsPing} from "../services/DragonsSoapService";
 
 const ServicesStatusBar = () => {
 
     const [drgState, setDrgState] = useState<number>(-1)
     const [klrState, setKrlState] = useState<number>(-1)
+    const [drsState, setDrsState] = useState<number>(-1)
 
     const doPing = () => {
         drgPing(
@@ -17,6 +19,11 @@ const ServicesStatusBar = () => {
             () => setKrlState(1),
             () => setKrlState(0),
             () => setKrlState(-1)
+        )
+        drsPing(
+            () => setDrsState(1),
+            () => setDrsState(0),
+            () => setDrsState(-1)
         )
     }
 
@@ -47,6 +54,10 @@ const ServicesStatusBar = () => {
             <div style={{display: "flex", alignItems: "center"}}>
                 <div style={{backgroundColor: stateColor(klrState), width: 10, height: 10, borderRadius: 5}}/>
                 <div>KLR</div>
+            </div>
+            <div style={{display: "flex", alignItems: "center"}}>
+                <div style={{backgroundColor: stateColor(drsState), width: 10, height: 10, borderRadius: 5}}/>
+                <div>DRGS</div>
             </div>
         </>
     )

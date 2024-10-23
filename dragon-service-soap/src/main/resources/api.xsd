@@ -18,42 +18,21 @@
         </xs:complexType>
     </xs:element>
 
-    <xs:element name="getDragonRequest">
+    <xs:element name="countDragonsByColorRequest">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="id" type="xs:int"/>
+                <xs:element name="color" type="tns:color"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
 
-    <xs:element name="getDragonResponse">
+    <xs:element name="countDragonsByColorResponse">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="dragon" type="tns:dragonDto"/>
+                <xs:element name="count" type="xs:int"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
-
-    <xs:complexType name="dragonDto">
-        <xs:sequence>
-            <xs:element name="id" type="xs:int"/>
-            <xs:element name="name" type="xs:string"/>
-            <xs:element name="coordinates" type="tns:coordinatesDto"/>
-            <xs:element name="creationDate" type="xs:dateTime"/>
-            <xs:element name="age" type="xs:int" nillable="true"/>
-            <xs:element name="description" type="xs:string"/>
-            <xs:element name="speaking" type="xs:boolean"/>
-            <xs:element name="color" type="tns:color"/>
-            <xs:element name="cave" type="tns:dragonCaveDto" nillable="true"/>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="coordinatesDto">
-        <xs:sequence>
-            <xs:element name="x" type="xs:double"/>
-            <xs:element name="y" type="xs:float"/>
-        </xs:sequence>
-    </xs:complexType>
 
     <xs:simpleType name="color">
         <xs:restriction base="xs:string">
@@ -63,11 +42,4 @@
             <xs:enumeration value="BROWN"/>
         </xs:restriction>
     </xs:simpleType>
-
-    <xs:complexType name="dragonCaveDto">
-        <xs:sequence>
-            <xs:element name="id" type="xs:int"/>
-            <xs:element name="numberOfTreasures" type="xs:float"/>
-        </xs:sequence>
-    </xs:complexType>
 </xs:schema>

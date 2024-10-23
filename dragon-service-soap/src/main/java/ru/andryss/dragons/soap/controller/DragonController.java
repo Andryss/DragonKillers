@@ -5,9 +5,8 @@ import org.springframework.ws.server.endpoint.annotation.Endpoint;
 import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
 import org.springframework.ws.server.endpoint.annotation.RequestPayload;
 import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
-import ru.andryss.dragons.soap.gen.DragonDto;
-import ru.andryss.dragons.soap.gen.GetDragonRequest;
-import ru.andryss.dragons.soap.gen.GetDragonResponse;
+import ru.andryss.dragons.soap.gen.CountDragonsByColorRequest;
+import ru.andryss.dragons.soap.gen.CountDragonsByColorResponse;
 import ru.andryss.dragons.soap.service.DragonsService;
 
 import static ru.andryss.dragons.soap.config.WsConfig.NAMESPACE_URI;
@@ -18,12 +17,12 @@ public class DragonController {
 
     private final DragonsService dragonsService;
 
-    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "getDragonRequest")
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "countDragonsByColorRequest")
     @ResponsePayload
-    public GetDragonResponse getDragon(@RequestPayload GetDragonRequest request) {
-        DragonDto dragonDto = dragonsService.getDragonById(request.getId());
-        GetDragonResponse response = new GetDragonResponse();
-        response.setDragon(dragonDto);
+    public CountDragonsByColorResponse countDragonsByColor(@RequestPayload CountDragonsByColorRequest request) {
+        Integer count = dragonsService.countByColor(request.getColor());
+        CountDragonsByColorResponse response = new CountDragonsByColorResponse();
+        response.setCount(count);
         return response;
     }
 }

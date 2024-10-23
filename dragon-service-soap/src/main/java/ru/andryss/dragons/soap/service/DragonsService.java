@@ -1,8 +1,8 @@
 package ru.andryss.dragons.soap.service;
 
 
-import ru.andryss.dragons.soap.gen.DragonDto;
+import ru.andryss.dragons.soap.gen.Color;
 
 public interface DragonsService {
-    DragonDto getDragonById(Integer id);
+    Integer countByColor(Color color);
 }
