@@ -7,14 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Order;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import ru.andryss.dragons.entity.CaveEntity;
@@ -33,6 +30,7 @@ import ru.andryss.dragons.model.DragonFilter;
 import ru.andryss.dragons.model.FloatFilter;
 import ru.andryss.dragons.model.IntFilter;
 import ru.andryss.dragons.model.SearchDragonInfo;
+import ru.andryss.dragons.model.SearchDragonInfo.SortOrderEnum;
 import ru.andryss.dragons.model.StringFilter;
 import ru.andryss.dragons.repository.CaveRepository;
 import ru.andryss.dragons.repository.DragonsRepository;
@@ -44,7 +42,6 @@ public class DragonsServiceImpl implements DragonsService {
 
     private final DragonsRepository dragonsRepository;
     private final CaveRepository caveRepository;
-    private final EntityManager entityManager;
 
     @Override
     public DragonDto createDragon(String name, Double x, Float y, Integer age,
@@ -166,99 +163,81 @@ public class DragonsServiceImpl implements DragonsService {
 
     @Override
     public List<DragonDto> search(SearchDragonInfo info) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        PageRequest pageRequest = PageRequest.of(info.getPageNumber(), info.getPageSize(),
+                toDirection(info.getSortOrder()), info.getSortBy());
 
-        CriteriaQuery<DragonEntity> query = cb.createQuery(DragonEntity.class);
-        Root<DragonEntity> root = query.from(DragonEntity.class);
-        query.where(getPredicates(cb, root, info));
-        query.orderBy(getOrders(cb, root, info));
+        Page<DragonEntity> page = dragonsRepository.findAll(isSuitsFilter(info.getFilter()), pageRequest);
 
-        TypedQuery<DragonEntity> typedQuery = entityManager.createQuery(query);
-        typedQuery.setFirstResult(info.getPageNumber() * info.getPageSize());
-        typedQuery.setMaxResults(info.getPageSize());
-
-        List<DragonEntity> dragons = typedQuery.getResultList();
-        return mapListToDto(dragons);
+        return mapListToDto(page.stream().toList());
     }
 
-    private static Predicate[] getPredicates(CriteriaBuilder cb, Root<DragonEntity> root, SearchDragonInfo info) {
-        List<Predicate> predicates = new ArrayList<>();
+    private Specification<DragonEntity> isSuitsFilter(DragonFilter info) {
+        return Specification.allOf(
+                intFilterSpec(info.getId(), "id"),
+                stringFilterSpec(info.getName(), "name"),
+                coordsFilterSpec(info.getCoordinates()),
+                dateFilterSpec(info.getCreationDate(), "creationDate"),
+                intFilterSpec(info.getAge(), "age"),
+                stringFilterSpec(info.getDescription(), "description"),
+                booleanFilterSpec(info.getSpeaking(), "speaking"),
+                stringFilterSpec(info.getColor(), "color"),
+                caveFilterSpec(info.getCave())
+        );
+    }
 
-        DragonFilter filter = info.getFilter();
-        if (filter == null) return new Predicate[0];
+    private static Specification<DragonEntity> coordsFilterSpec(CoordinatesFilter filter) {
+        return (filter == null ? null : Specification.allOf(
+                floatFilterSpec(filter.getX(), "x"),
+                floatFilterSpec(filter.getY(), "y")
+        ));
+    }
 
-        addIntFilterPredicates(cb, predicates, root, filter.getId(), "id");
-        addStringFilterPredicates(cb, predicates, root, filter.getName(), "name");
+    private static Specification<DragonEntity> caveFilterSpec(DragonCaveFilter filter) {
+        return (filter == null ? null :
+                intFilterSpec(filter.getId(), "cave_id")
+        );
+    }
 
-        CoordinatesFilter coordinatesFilter = filter.getCoordinates();
-        if (coordinatesFilter != null) {
-            addFloatFilterPredicates(cb, predicates, root, coordinatesFilter.getX(), "x");
-            addFloatFilterPredicates(cb, predicates, root, coordinatesFilter.getY(), "y");
-        }
-
-        addDateFilterPredicates(cb, predicates, root, filter.getCreationDate(), "creationDate");
-        addIntFilterPredicates(cb, predicates, root, filter.getAge(), "age");
-        addStringFilterPredicates(cb, predicates, root, filter.getDescription(), "description");
-        addBooleanFilterPredicates(cb, predicates, root, filter.getSpeaking(), "speaking");
-        addStringFilterPredicates(cb, predicates, root, filter.getColor(), "color");
-
-        DragonCaveFilter caveFilter = filter.getCave();
-        if (caveFilter != null) {
-            addIntFilterPredicates(cb, predicates, root, caveFilter.getId(), "id");
-            // addFloatFilterPredicates(cb, predicates, root, caveFilter.getNumberOfTreasures(), "numberOfTreasures");
-        }
-
-        return predicates.toArray(new Predicate[0]);
+    private static Direction toDirection(SortOrderEnum order) {
+        return (order == SortOrderEnum.ASC ? Direction.ASC : Direction.DESC);
     }
 
     @SuppressWarnings("SameParameterValue")
-    private static void addBooleanFilterPredicates(CriteriaBuilder cb, List<Predicate> predicates, Root<DragonEntity> root,
-                                                   BooleanFilter filter, String property) {
-        if (filter == null) return;
-        if (filter.getEq() != null) predicates.add(cb.equal(root.get(property), filter.getEq()));
+    private static Specification<DragonEntity> booleanFilterSpec(BooleanFilter filter, String prop) {
+        return (filter == null ? null :
+                (root, query, builder) -> (filter.getEq() == null ? null : builder.equal(root.get(prop), filter.getEq()))
+        );
     }
 
     @SuppressWarnings("SameParameterValue")
-    private static void addDateFilterPredicates(CriteriaBuilder cb, List<Predicate> predicates, Root<DragonEntity> root,
-                                                DateFilter filter, String property) {
-        if (filter == null) return;
-        if (filter.getEq() != null) predicates.add(cb.equal(root.get(property), filter.getEq()));
-        if (filter.getGr() != null) predicates.add(cb.greaterThan(root.get(property), filter.getGr()));
-        if (filter.getLw() != null) predicates.add(cb.lessThan(root.get(property), filter.getLw()));
+    private static Specification<DragonEntity> dateFilterSpec(DateFilter filter, String prop) {
+        return (filter == null ? null : Specification.allOf(
+                (root, query, builder) -> (filter.getEq() == null ? null : builder.equal(root.get(prop), filter.getEq())),
+                (root, query, builder) -> (filter.getGr() == null ? null : builder.greaterThan(root.get(prop), filter.getGr())),
+                (root, query, builder) -> (filter.getLw() == null ? null : builder.lessThan(root.get(prop), filter.getLw()))
+        ));
     }
 
-    private static void addFloatFilterPredicates(CriteriaBuilder cb, List<Predicate> predicates, Root<DragonEntity> root,
-                                  FloatFilter filter, String property) {
-        if (filter == null) return;
-        if (filter.getEq() != null) predicates.add(cb.equal(root.get(property), filter.getEq()));
-        if (filter.getGr() != null) predicates.add(cb.greaterThan(root.get(property), filter.getGr()));
-        if (filter.getLw() != null) predicates.add(cb.lessThan(root.get(property), filter.getLw()));
+    private static Specification<DragonEntity> floatFilterSpec(FloatFilter filter, String prop) {
+        return (filter == null ? null : Specification.allOf(
+                (root, query, builder) -> (filter.getEq() == null ? null : builder.equal(root.get(prop), filter.getEq())),
+                (root, query, builder) -> (filter.getGr() == null ? null : builder.greaterThan(root.get(prop), filter.getGr())),
+                (root, query, builder) -> (filter.getLw() == null ? null : builder.lessThan(root.get(prop), filter.getLw()))
+        ));
     }
 
-    private static void addStringFilterPredicates(CriteriaBuilder cb, List<Predicate> predicates, Root<DragonEntity> root,
-                                  StringFilter filter, String property) {
-        if (filter == null) return;
-        if (filter.getEq() != null && !filter.getEq().isEmpty()) predicates.add(cb.equal(root.get(property), filter.getEq()));
+    private static Specification<DragonEntity> stringFilterSpec(StringFilter filter, String prop) {
+        return (filter == null ? null :
+                (root, query, builder) -> (filter.getEq() == null ? null : builder.equal(root.get(prop), filter.getEq()))
+        );
     }
 
-    private static void addIntFilterPredicates(CriteriaBuilder cb, List<Predicate> predicates, Root<DragonEntity> root,
-                                  IntFilter filter, String property) {
-        if (filter == null) return;
-        if (filter.getEq() != null) predicates.add(cb.equal(root.get(property), filter.getEq()));
-        if (filter.getGr() != null) predicates.add(cb.greaterThan(root.get(property), filter.getGr()));
-        if (filter.getLw() != null) predicates.add(cb.lessThan(root.get(property), filter.getLw()));
-    }
-
-    private static Order[] getOrders(CriteriaBuilder cb, Root<DragonEntity> root, SearchDragonInfo info) {
-        switch (info.getSortOrder()) {
-            case ASC -> {
-                return new Order[]{ cb.asc(root.get(info.getSortBy())) };
-            }
-            case DESC -> {
-                return new Order[]{ cb.desc(root.get(info.getSortBy())) };
-            }
-        }
-        return new Order[0];
+    private static Specification<DragonEntity> intFilterSpec(IntFilter filter, String prop) {
+        return (filter == null ? null : Specification.allOf(
+                (root, query, builder) -> (filter.getEq() == null ? null : builder.equal(root.get(prop), filter.getEq())),
+                (root, query, builder) -> (filter.getGr() == null ? null : builder.greaterThan(root.get(prop), filter.getGr())),
+                (root, query, builder) -> (filter.getLw() == null ? null : builder.lessThan(root.get(prop), filter.getLw()))
+        ));
     }
 
     private List<DragonDto> mapListToDto(List<DragonEntity> foundDragons) {
