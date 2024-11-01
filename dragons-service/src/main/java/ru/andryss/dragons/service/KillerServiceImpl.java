@@ -7,6 +7,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import ru.andryss.dragons.entity.CaveEntity;
 import ru.andryss.dragons.entity.KillerTeamEntity;
 import ru.andryss.dragons.exception.ConflictException;
 import ru.andryss.dragons.exception.NotFoundException;
@@ -26,14 +27,14 @@ public class KillerServiceImpl implements KillerService {
         if (killerTeamRepository.findById(id).isPresent()) {
             throw new ConflictException("killer team with id %s exist".formatted(id));
         }
-        caveRepository.findById(caveId)
+        CaveEntity cave = caveRepository.findById(caveId)
                 .orElseThrow(() -> new NotFoundException("cave %s not found".formatted(caveId)));
 
         KillerTeamEntity team = new KillerTeamEntity();
         team.setId(id);
         team.setName(name);
         team.setSize(size);
-        team.setCaveId(caveId);
+        team.setCaveEntity(cave);
 
         killerTeamRepository.save(team);
 
@@ -53,12 +54,12 @@ public class KillerServiceImpl implements KillerService {
         KillerTeamEntity team = killerTeamRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("killer team %s does not exist".formatted(id)));
 
-        caveRepository.findById(caveId)
+        CaveEntity cave = caveRepository.findById(caveId)
                 .orElseThrow(() -> new NotFoundException("cave %s not found".formatted(caveId)));
 
         team.setName(name);
         team.setSize(size);
-        team.setCaveId(caveId);
+        team.setCaveEntity(cave);
 
         killerTeamRepository.save(team);
 
@@ -94,6 +95,6 @@ public class KillerServiceImpl implements KillerService {
                 .id(team.getId())
                 .name(team.getName())
                 .size(team.getSize())
-                .caveId(team.getCaveId());
+                .caveId(team.getCaveEntity().getId());
     }
 }

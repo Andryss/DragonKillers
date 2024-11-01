@@ -2,11 +2,13 @@ package ru.andryss.dragons.soap.entity;
 
 import java.time.Instant;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import lombok.Getter;
 import lombok.Setter;
 import ru.andryss.dragons.soap.gen.Color;
@@ -29,5 +31,6 @@ public class DragonEntity {
     boolean speaking;
     @Enumerated(EnumType.STRING)
     Color color;
-    Integer caveId;
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    CaveEntity caveEntity;
 }

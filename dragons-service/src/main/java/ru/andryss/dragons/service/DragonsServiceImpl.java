@@ -24,7 +24,6 @@ import ru.andryss.dragons.model.CoordinatesFilter;
 import ru.andryss.dragons.model.DateFilter;
 import ru.andryss.dragons.model.DescriptionInfo;
 import ru.andryss.dragons.model.DragonCaveDto;
-import ru.andryss.dragons.model.DragonCaveFilter;
 import ru.andryss.dragons.model.DragonDto;
 import ru.andryss.dragons.model.DragonFilter;
 import ru.andryss.dragons.model.FloatFilter;
@@ -32,7 +31,6 @@ import ru.andryss.dragons.model.IntFilter;
 import ru.andryss.dragons.model.SearchDragonInfo;
 import ru.andryss.dragons.model.SearchDragonInfo.SortOrderEnum;
 import ru.andryss.dragons.model.StringFilter;
-import ru.andryss.dragons.repository.CaveRepository;
 import ru.andryss.dragons.repository.DragonsRepository;
 
 @SuppressWarnings("DuplicatedCode")
@@ -41,20 +39,11 @@ import ru.andryss.dragons.repository.DragonsRepository;
 public class DragonsServiceImpl implements DragonsService {
 
     private final DragonsRepository dragonsRepository;
-    private final CaveRepository caveRepository;
 
     @Override
     public DragonDto createDragon(String name, Double x, Float y, Integer age,
                                   String description, Boolean speaking, Color color,
                                   @Nullable Float caveNumberOfTreasures) {
-        CaveEntity cave = null;
-        if (caveNumberOfTreasures != null) {
-            cave = new CaveEntity();
-            cave.setNumberOfTreasures(caveNumberOfTreasures);
-
-            caveRepository.save(cave);
-        }
-
         DragonEntity dragon = new DragonEntity();
         dragon.setName(name);
         dragon.setX(x);
@@ -64,13 +53,16 @@ public class DragonsServiceImpl implements DragonsService {
         dragon.setDescription(description);
         dragon.setSpeaking(speaking);
         dragon.setColor(color);
-        if (cave != null) {
-            dragon.setCaveId(cave.getId());
+        if (caveNumberOfTreasures != null) {
+            CaveEntity cave = new CaveEntity();
+            cave.setNumberOfTreasures(caveNumberOfTreasures);
+
+            dragon.setCaveEntity(cave);
         }
 
         dragonsRepository.save(dragon);
 
-        return mapToDto(dragon, cave);
+        return mapToDto(dragon);
     }
 
     @Override
@@ -78,13 +70,7 @@ public class DragonsServiceImpl implements DragonsService {
         DragonEntity dragon = dragonsRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("dragon %s".formatted(id)));
 
-        CaveEntity cave = null;
-        if (dragon.getCaveId() != null) {
-            cave = caveRepository.findById(dragon.getCaveId())
-                    .orElseThrow(() -> new NotFoundException("cave %s".formatted(dragon.getCaveId())));
-        }
-
-        return mapToDto(dragon, cave);
+        return mapToDto(dragon);
     }
 
     @Override
@@ -101,23 +87,20 @@ public class DragonsServiceImpl implements DragonsService {
         dragon.setSpeaking(speaking);
         dragon.setColor(color);
 
-        CaveEntity cave = null;
         if (caveNumberOfTreasures == null) {
-            dragon.setCaveId(null);
+            dragon.setCaveEntity(null);
         } else {
-            if (dragon.getCaveId() != null) {
-                cave = caveRepository.findById(dragon.getCaveId())
-                        .orElseThrow(() -> new NotFoundException("cave %s".formatted(dragon.getCaveId())));
-            } else {
+            CaveEntity cave = dragon.getCaveEntity();
+            if (cave == null) {
                 cave = new CaveEntity();
             }
             cave.setNumberOfTreasures(caveNumberOfTreasures);
-            caveRepository.save(cave);
+            dragon.setCaveEntity(cave);
         }
 
         dragonsRepository.save(dragon);
 
-        return mapToDto(dragon, cave);
+        return mapToDto(dragon);
     }
 
     @Override
@@ -127,13 +110,7 @@ public class DragonsServiceImpl implements DragonsService {
             return;
         }
 
-        DragonEntity dragon = optionalDragon.get();
-
-        if (dragon.getCaveId() != null) {
-            caveRepository.deleteById(dragon.getCaveId());
-        }
-
-        dragonsRepository.delete(dragon);
+        dragonsRepository.delete(optionalDragon.get());
     }
 
     @Override
@@ -180,8 +157,7 @@ public class DragonsServiceImpl implements DragonsService {
                 intFilterSpec(info.getAge(), "age"),
                 stringFilterSpec(info.getDescription(), "description"),
                 booleanFilterSpec(info.getSpeaking(), "speaking"),
-                stringFilterSpec(info.getColor(), "color"),
-                caveFilterSpec(info.getCave())
+                stringFilterSpec(info.getColor(), "color")
         );
     }
 
@@ -190,12 +166,6 @@ public class DragonsServiceImpl implements DragonsService {
                 floatFilterSpec(filter.getX(), "x"),
                 floatFilterSpec(filter.getY(), "y")
         ));
-    }
-
-    private static Specification<DragonEntity> caveFilterSpec(DragonCaveFilter filter) {
-        return (filter == null ? null :
-                intFilterSpec(filter.getId(), "cave_id")
-        );
     }
 
     private static Direction toDirection(SortOrderEnum order) {
@@ -241,16 +211,10 @@ public class DragonsServiceImpl implements DragonsService {
     }
 
     private List<DragonDto> mapListToDto(List<DragonEntity> foundDragons) {
-        List<DragonDto> dragons = new ArrayList<>();
-        for (DragonEntity dragon : foundDragons) {
-            Integer caveId = dragon.getCaveId();
-            CaveEntity cave = (caveId == null ? null : caveRepository.findById(caveId).orElse(null));
-            dragons.add(mapToDto(dragon, cave));
-        }
-        return dragons;
+        return foundDragons.stream().map(DragonsServiceImpl::mapToDto).toList();
     }
 
-    private static DragonDto mapToDto(DragonEntity dragon, @Nullable CaveEntity cave) {
+    private static DragonDto mapToDto(DragonEntity dragon) {
         DragonDto dto = new DragonDto()
                 .id(dragon.getId())
                 .name(dragon.getName())
@@ -262,6 +226,7 @@ public class DragonsServiceImpl implements DragonsService {
                 .description(dragon.getDescription())
                 .speaking(dragon.isSpeaking())
                 .color(dragon.getColor());
+        CaveEntity cave = dragon.getCaveEntity();
         if (cave != null) {
             dto.cave(new DragonCaveDto()
                     .id(cave.getId())

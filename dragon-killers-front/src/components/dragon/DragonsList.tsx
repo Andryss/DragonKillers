@@ -171,10 +171,6 @@ export const DragonsList = (props: Props) => {
         setStrFilter((sdi) => sdi.filter.color, type, val)
     }
 
-    const setCave = (type: keyof IntFilter, val: number | null) => {
-        setIntFilter((sdi) => sdi.filter.cave.id, type, val)
-    }
-
     const onDeleteClick = (dto: DragonDto) => {
         deleteDragon(dto.id, () => {
             fetchDragons(searchInfo)
@@ -232,12 +228,6 @@ export const DragonsList = (props: Props) => {
                             <EnumEq values={dragonColors}
                                 onEqualSet={(val: string | null) => setColor("eq", val)}/>
                         </div>
-                        <div style={{display: "flex"}}>
-                            <label>cave: </label>
-                            <IntEqGrLw onEqualSet={(val: number | null) => setCave("eq", val)}
-                                onGreaterSet={(val: number | null) => setCave("gr", val)}
-                                onLowerSet={(val: number | null) => setCave("lw", val)}/>
-                        </div>
                     </>
                 )}
                 <table border={1}>
@@ -251,7 +241,7 @@ export const DragonsList = (props: Props) => {
                         {sortableColumnHeader("description")}
                         {sortableColumnHeader("speaking")}
                         {sortableColumnHeader("color")}
-                        {sortableColumnHeader("caveId")}
+                        <th>caveId</th>
                         <th>numberOfTreasures</th>
                         <th>actions</th>
                     </tr>

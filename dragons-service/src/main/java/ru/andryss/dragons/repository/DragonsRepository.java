@@ -16,7 +16,6 @@ public interface DragonsRepository extends JpaRepository<DragonEntity, Integer>,
     int countByDescription(String description);
     @Query("""
         select d from DragonEntity d
-            join CaveEntity c on d.caveId = c.id
-            where c.numberOfTreasures > :treasures""")
+            where d.caveEntity.numberOfTreasures > :treasures""")
     List<DragonEntity> findWithGreaterCave(@Param("treasures") Float numberOfThreasures);
 }
