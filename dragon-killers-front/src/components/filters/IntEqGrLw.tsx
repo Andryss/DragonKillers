@@ -11,37 +11,55 @@ export const IntEqGrLw = (props: Props) => {
     const [greater, setGreater] = useState<string>("")
     const [lower, setLower] = useState<string>("")
 
+    const isValidInt = (str: string): boolean => {
+        let digits = 0
+        for (let char of str) {
+            if (!(char >= "0" && char <= "9")) return false
+            digits++
+        }
+        return digits < 10
+    }
+
     const parse = (str: string) => {
         const parsed = parseInt(str)
-        return (parsed && !isNaN(parsed) ? parsed : null)
+        return (!isNaN(parsed) ? parsed : null)
     }
 
     return (
         <>
             <input
-                type={"number"}
+                type={"text"}
                 value={equal}
                 onChange={(e) => {
-                    setEqual(e.target.value)
-                    props.onEqualSet(parse(e.target.value))
+                    const str = e.target.value;
+                    if (isValidInt(str) || str === "") {
+                        setEqual(str)
+                        props.onEqualSet(parse(str))
+                    }
                 }}
                 placeholder={"equal to"}
             />
             <input
-                type={"number"}
+                type={"text"}
                 value={greater}
                 onChange={(e) => {
-                    setGreater(e.target.value)
-                    props.onGreaterSet(parse(e.target.value))
+                    const str = e.target.value;
+                    if (isValidInt(str) || str === "") {
+                        setGreater(str)
+                        props.onGreaterSet(parse(str))
+                    }
                 }}
                 placeholder={"greater then"}
             />
             <input
-                type={"number"}
+                type={"text"}
                 value={lower}
                 onChange={(e) => {
-                    setLower(e.target.value)
-                    props.onLowerSet(parse(e.target.value))
+                    const str = e.target.value;
+                    if (isValidInt(str) || str === "") {
+                        setLower(str)
+                        props.onLowerSet(parse(str))
+                    }
                 }}
                 placeholder={"lower then"}
             />

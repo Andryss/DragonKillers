@@ -11,9 +11,20 @@ export const FloatEqGrLw = (props: Props) => {
     const [greater, setGreater] = useState<string>("")
     const [lower, setLower] = useState<string>("")
 
+    const isValidFloat = (str: string): boolean => {
+        let digits = 0
+        for (let char of str) {
+            if (!((char >= "0" && char <= "9") || char === "." || char === "-")) return false
+            if (char >= "0" && char <= "9") digits++
+        }
+        if (str.includes("-") && str.lastIndexOf("-") !== 0) return false
+        if (str.indexOf(".") !== str.lastIndexOf(".")) return false
+        return digits < 10
+    }
+
     const parse = (str: string) => {
         const parsed = parseFloat(str)
-        return (parsed && !isNaN(parsed) ? parsed : null)
+        return (!isNaN(parsed) ? parsed : null)
     }
 
     return (
@@ -22,8 +33,11 @@ export const FloatEqGrLw = (props: Props) => {
                 type={"text"}
                 value={equal}
                 onChange={(e) => {
-                    setEqual(e.target.value)
-                    props.onEqualSet(parse(e.target.value))
+                    const str = e.target.value;
+                    if (isValidFloat(str) || str === "") {
+                        setEqual(str)
+                        props.onEqualSet(parse(str))
+                    }
                 }}
                 placeholder={"equal to"}
             />
@@ -31,8 +45,11 @@ export const FloatEqGrLw = (props: Props) => {
                 type={"text"}
                 value={greater}
                 onChange={(e) => {
-                    setGreater(e.target.value)
-                    props.onGreaterSet(parse(e.target.value))
+                    const str = e.target.value;
+                    if (isValidFloat(str) || str === "") {
+                        setGreater(str)
+                        props.onGreaterSet(parse(str))
+                    }
                 }}
                 placeholder={"greater then"}
             />
@@ -40,8 +57,11 @@ export const FloatEqGrLw = (props: Props) => {
                 type={"text"}
                 value={lower}
                 onChange={(e) => {
-                    setLower(e.target.value)
-                    props.onLowerSet(parse(e.target.value))
+                    const str = e.target.value;
+                    if (isValidFloat(str) || str === "") {
+                        setLower(str)
+                        props.onLowerSet(parse(str))
+                    }
                 }}
                 placeholder={"lower then"}
             />

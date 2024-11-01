@@ -12,6 +12,7 @@ export const DragonPage = () => {
 
     const [modalOpen, setModalOpen] = useState<boolean>(false)
     const [editable, setEditable] = useState<DragonDto | null>(null)
+    const [refresh, setRefresh] = useState<boolean>(false)
 
     const openModal = () => setModalOpen(true)
 
@@ -27,10 +28,15 @@ export const DragonPage = () => {
         openModal()
     }
 
+    const onSuccessModal = () => {
+        setRefresh((prev) => !prev)
+        closeModal()
+    }
+
     return (
         <>
             <h2>Dragon service</h2>
-            <DragonsList onNew={onDragonCreate} onEdit={onDragonEdit}/>
+            <DragonsList onNew={onDragonCreate} onEdit={onDragonEdit} refresh={refresh}/>
             <br/><br/>
             <DragonByColorCounter/>
             <br/><br/>
@@ -40,7 +46,7 @@ export const DragonPage = () => {
             <br/><br/>
             <KillerTeamsList/>
             <Modal isOpen={modalOpen} onClose={closeModal}>
-                <CreateDragon onSuccess={closeModal} editable={editable}/>
+                <CreateDragon onSuccess={onSuccessModal} editable={editable}/>
             </Modal>
         </>
     )

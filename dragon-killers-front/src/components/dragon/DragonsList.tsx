@@ -17,6 +17,7 @@ import {EnumEq} from "../filters/EnumEq";
 interface Props {
     onNew: () => void,
     onEdit: (_: DragonDto) => void,
+    refresh: boolean,
 }
 
 export const DragonsList = (props: Props) => {
@@ -74,7 +75,7 @@ export const DragonsList = (props: Props) => {
 
     useEffect(() => {
         fetchDragons(searchInfo)
-    }, [searchInfo])
+    }, [searchInfo, props.refresh])
 
     const onPrevClicked = () => {
         setSearchInfo((prev) => ({...prev, pageNumber: prev.pageNumber - 1}))
