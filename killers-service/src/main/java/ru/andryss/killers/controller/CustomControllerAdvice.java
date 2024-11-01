@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.NoHandlerFoundException;
+import ru.andryss.killers.exception.BadRequestException;
 import ru.andryss.killers.exception.InternalServerErrorException;
+import ru.andryss.killers.exception.NotFoundException;
 import ru.andryss.killers.model.ErrorObject;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -28,6 +30,7 @@ public class CustomControllerAdvice {
             HttpMessageNotReadableException.class,
             MissingServletRequestPartException.class,
             MethodArgumentTypeMismatchException.class,
+            BadRequestException.class,
     })
     @ResponseStatus(BAD_REQUEST)
     ErrorObject handleBadRequest(Exception e) {
@@ -50,7 +53,10 @@ public class CustomControllerAdvice {
         return new ErrorObject().message((String) e.getDetailMessageArguments()[1]);
     }
 
-    @ExceptionHandler(NoHandlerFoundException.class)
+    @ExceptionHandler({
+            NoHandlerFoundException.class,
+            NotFoundException.class,
+    })
     @ResponseStatus(NOT_FOUND)
     ErrorObject handleNotFound(Exception e) {
         return new ErrorObject().message(e.getMessage());

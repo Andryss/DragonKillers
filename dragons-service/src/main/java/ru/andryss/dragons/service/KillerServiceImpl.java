@@ -2,11 +2,12 @@ package ru.andryss.dragons.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 import ru.andryss.dragons.entity.CaveEntity;
 import ru.andryss.dragons.entity.KillerTeamEntity;
 import ru.andryss.dragons.exception.ConflictException;
@@ -23,6 +24,7 @@ public class KillerServiceImpl implements KillerService {
     private final CaveRepository caveRepository;
 
     @Override
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public KillerTeamDto createTeam(Integer id, String name, Integer size, Integer caveId) {
         if (killerTeamRepository.findById(id).isPresent()) {
             throw new ConflictException("killer team with id %s exist".formatted(id));
@@ -50,6 +52,7 @@ public class KillerServiceImpl implements KillerService {
     }
 
     @Override
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public KillerTeamDto updateById(Integer id, String name, Integer size, Integer caveId) {
         KillerTeamEntity team = killerTeamRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("killer team %s does not exist".formatted(id)));
@@ -68,14 +71,7 @@ public class KillerServiceImpl implements KillerService {
 
     @Override
     public void deleteById(Integer id) {
-        Optional<KillerTeamEntity> optionalTeam = killerTeamRepository.findById(id);
-
-        if (optionalTeam.isEmpty()) {
-            return;
-        }
-
-        KillerTeamEntity team = optionalTeam.get();
-        killerTeamRepository.delete(team);
+        killerTeamRepository.deleteById(id);
     }
 
     @Override

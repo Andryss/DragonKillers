@@ -8,13 +8,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import ru.andryss.killers.exception.BadRequestException;
 import ru.andryss.killers.exception.InternalServerErrorException;
+import ru.andryss.killers.exception.NotFoundException;
 import ru.andryss.killers.model.CreateKillerTeamRequest;
 import ru.andryss.killers.model.ErrorObject;
 import ru.andryss.killers.model.KillerTeamDto;
@@ -74,6 +77,11 @@ public class KillerServiceImpl implements KillerService {
         } catch (HttpClientErrorException e) {
             String responseString = e.getResponseBodyAsString();
             ErrorObject errorObject = readAsXml(responseString, ErrorObject.class);
+            if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {
+                throw new BadRequestException(errorObject.getMessage());
+            } else if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                throw new NotFoundException(errorObject.getMessage());
+            }
             throw new InternalServerErrorException(errorObject.getMessage());
         } catch (RestClientException e) {
             log.error("Catch exception while sending http request", e);

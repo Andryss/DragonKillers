@@ -5,7 +5,6 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -14,6 +13,8 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 import ru.andryss.dragons.entity.CaveEntity;
 import ru.andryss.dragons.entity.DragonEntity;
 import ru.andryss.dragons.exception.NotFoundException;
@@ -74,6 +75,7 @@ public class DragonsServiceImpl implements DragonsService {
     }
 
     @Override
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public DragonDto updateDragon(Integer id, String name, Double x, Float y, @Nullable Integer age, String description,
                                   Boolean speaking, Color color, @Nullable Float caveNumberOfTreasures) {
         DragonEntity dragon = dragonsRepository.findById(id)
@@ -105,12 +107,7 @@ public class DragonsServiceImpl implements DragonsService {
 
     @Override
     public void deleteDragon(Integer id) {
-        Optional<DragonEntity> optionalDragon = dragonsRepository.findById(id);
-        if (optionalDragon.isEmpty()) {
-            return;
-        }
-
-        dragonsRepository.delete(optionalDragon.get());
+        dragonsRepository.deleteById(id);
     }
 
     @Override
