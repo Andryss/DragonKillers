@@ -188,47 +188,65 @@ export const DragonsList = (props: Props) => {
                 <button onClick={() => setShowFilters(!showFilters)}>{showFilters ? "Hide Filters" : "Show Filters"}</button>
                 {showFilters && (
                     <>
-                        <div style={{display: "flex"}}>
-                            <label>id: </label>
-                            <IntEqGrLw onEqualSet={(val: number | null) => setId("eq", val)}
-                                onGreaterSet={(val: number | null) => setId("gr", val)}
-                                onLowerSet={(val: number | null) => setId("lw", val)}/>
-                        </div>
-                        <div style={{display: "flex"}}>
-                            <label>name: </label>
-                            <StrEq onEqualSet={(val: string | null) => setName("eq", val)}/>
-                        </div>
-                        <div style={{display: "flex"}}>
-                            <label>x: </label>
-                            <FloatEqGrLw onEqualSet={(val: number | null) => setX("eq", val)}
-                                onGreaterSet={(val: number | null) => setX("gr", val)}
-                                onLowerSet={(val: number | null) => setX("lw", val)}/>
-                        </div>
-                        <div style={{display: "flex"}}>
-                            <label>y: </label>
-                            <FloatEqGrLw onEqualSet={(val: number | null) => setY("eq", val)}
-                                onGreaterSet={(val: number | null) => setY("gr", val)}
-                                onLowerSet={(val: number | null) => setY("lw", val)}/>
-                        </div>
-                        <div style={{display: "flex"}}>
-                            <label>age: </label>
-                            <IntEqGrLw onEqualSet={(val: number | null) => setAge("eq", val)}
-                                onGreaterSet={(val: number | null) => setAge("gr", val)}
-                                onLowerSet={(val: number | null) => setAge("lw", val)}/>
-                        </div>
-                        <div style={{display: "flex"}}>
-                            <label>description: </label>
-                            <StrEq onEqualSet={(val: string | null) => setDescription("eq", val)}/>
-                        </div>
-                        <div style={{display: "flex"}}>
-                            <label>speaking: </label>
-                            <BoolEq onEqualSet={(val: boolean | null) => setSpeaking("eq", val)}/>
-                        </div>
-                        <div style={{display: "flex"}}>
-                            <label>color: </label>
-                            <EnumEq values={dragonColors}
-                                onEqualSet={(val: string | null) => setColor("eq", val)}/>
-                        </div>
+                        <table>
+                            <tr>
+                                <td>id:</td>
+                                <td>
+                                    <IntEqGrLw onEqualSet={(val: number | null) => setId("eq", val)}
+                                        onGreaterSet={(val: number | null) => setId("gr", val)}
+                                        onLowerSet={(val: number | null) => setId("lw", val)}/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>name:</td>
+                                <td>
+                                    <StrEq onEqualSet={(val: string | null) => setName("eq", val)}/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>x:</td>
+                                <td>
+                                    <FloatEqGrLw onEqualSet={(val: number | null) => setX("eq", val)}
+                                        onGreaterSet={(val: number | null) => setX("gr", val)}
+                                        onLowerSet={(val: number | null) => setX("lw", val)}/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>y:</td>
+                                <td>
+                                    <FloatEqGrLw onEqualSet={(val: number | null) => setY("eq", val)}
+                                        onGreaterSet={(val: number | null) => setY("gr", val)}
+                                        onLowerSet={(val: number | null) => setY("lw", val)}/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>age:</td>
+                                <td>
+                                    <IntEqGrLw onEqualSet={(val: number | null) => setAge("eq", val)}
+                                        onGreaterSet={(val: number | null) => setAge("gr", val)}
+                                        onLowerSet={(val: number | null) => setAge("lw", val)}/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>description:</td>
+                                <td>
+                                    <StrEq onEqualSet={(val: string | null) => setDescription("eq", val)}/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>speaking:</td>
+                                <td>
+                                    <BoolEq onEqualSet={(val: boolean | null) => setSpeaking("eq", val)}/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>color:</td>
+                                <td>
+                                    <EnumEq values={dragonColors}
+                                        onEqualSet={(val: string | null) => setColor("eq", val)}/>
+                                </td>
+                            </tr>
+                        </table>
                     </>
                 )}
                 <table border={1}>

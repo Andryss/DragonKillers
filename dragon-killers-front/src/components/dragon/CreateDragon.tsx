@@ -128,74 +128,92 @@ export const CreateDragon = (props: Props) => {
     return (
         <>
             <h2>{props.editable ? "Edit dragon" : "Create dragon"}</h2>
-            <div>
-                <label>Name</label>
-                <input
-                    type={"text"}
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                />
-            </div>
-            <div>
-                <label>X</label>
-                <input
-                    type={"text"}
-                    value={x}
-                    onChange={(e) => setX(e.target.value)}
-                />
-            </div>
-            <div>
-                <label>Y</label>
-                <input
-                    type={"text"}
-                    value={y}
-                    onChange={(e) => setY(e.target.value)}
-                />
-            </div>
-            <div>
-                <label>Age</label>
-                <input
-                    type={"number"}
-                    value={age}
-                    onChange={(e) => setAge(e.target.value)}
-                />
-            </div>
-            <div>
-                <label>Description</label>
-                <input
-                    type={"text"}
-                    value={descr}
-                    onChange={(e) => setDescr(e.target.value)}
-                />
-            </div>
-            <div>
-                <label>Speaking</label>
-                <input
-                    type={"checkbox"}
-                    checked={speaking}
-                    onChange={(e) => setSpeaking(e.target.checked)}
-                />
-            </div>
-            <div>
-                <label>Color</label>
-                <select
-                    value={color}
-                    onChange={(e) => setColor(e.target.value)}
-                >
-                    <option value={""}></option>
-                    {dragonColors.map((value) =>
-                        <option key={value} value={value}>{value}</option>
-                    )}
-                </select>
-            </div>
-            <div>
-                <label>Number of treasures</label>
-                <input
-                    type={"text"}
-                    value={treasures}
-                    onChange={(e) => setTreasures(e.target.value)}
-                />
-            </div>
+            <table>
+                <tr>
+                    <td>Name</td>
+                    <td>
+                        <input
+                            type={"text"}
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                        />
+                    </td>
+                </tr>
+                <tr>
+                    <td>X</td>
+                    <td>
+                        <input
+                            type={"text"}
+                            value={x}
+                            onChange={(e) => setX(e.target.value)}
+                        />
+                    </td>
+                </tr>
+                <tr>
+                    <td>Y</td>
+                    <td>
+                        <input
+                            type={"text"}
+                            value={y}
+                            onChange={(e) => setY(e.target.value)}
+                        />
+                    </td>
+                </tr>
+                <tr>
+                    <td>Age</td>
+                    <td>
+                        <input
+                            type={"number"}
+                            value={age}
+                            onChange={(e) => setAge(e.target.value)}
+                        />
+                    </td>
+                </tr>
+                <tr>
+                    <td>Description</td>
+                    <td>
+                        <input
+                            type={"text"}
+                            value={descr}
+                            onChange={(e) => setDescr(e.target.value)}
+                        />
+                    </td>
+                </tr>
+                <tr>
+                    <td>Speaking</td>
+                    <td>
+                        <input
+                            type={"checkbox"}
+                            checked={speaking}
+                            onChange={(e) => setSpeaking(e.target.checked)}
+                        />
+                    </td>
+                </tr>
+                <tr>
+                    <td>Color</td>
+                    <td>
+                        <select
+                            value={color}
+                            onChange={(e) => setColor(e.target.value)}
+                        >
+                            <option value={""}></option>
+                            {dragonColors.map((value) =>
+                                <option key={value} value={value}>{value}</option>
+                            )}
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Number of treasures</td>
+                    <td>
+                        <input
+                            type={"text"}
+                            value={treasures}
+                            onChange={(e) => setTreasures(e.target.value)}
+                        />
+                    </td>
+                </tr>
+            </table>
             <button onClick={onCreateClicked} disabled={loading}>{props.editable ? "edit" : "create"}</button>
             {error !== "" && (
                 <div><label style={{color: "red"}}>{error}</label></div>
