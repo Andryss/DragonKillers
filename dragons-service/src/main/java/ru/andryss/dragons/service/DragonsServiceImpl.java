@@ -146,6 +146,9 @@ public class DragonsServiceImpl implements DragonsService {
     }
 
     private Specification<DragonEntity> isSuitsFilter(DragonFilter info) {
+        if (info == null) {
+            return (root, query, builder) -> null;
+        }
         return Specification.allOf(
                 intFilterSpec(info.getId(), "id"),
                 stringFilterSpec(info.getName(), "name"),
