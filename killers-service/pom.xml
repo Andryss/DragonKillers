@@ -196,6 +196,7 @@
                 <interfaceOnly>true</interfaceOnly>
                 <useJakartaEe>true</useJakartaEe>
                 <openApiNullable>false</openApiNullable>
+                <serializableModel>true</serializableModel>
               </configOptions>
             </configuration>
           </execution>
