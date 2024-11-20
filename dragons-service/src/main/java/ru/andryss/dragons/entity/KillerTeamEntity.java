@@ -2,7 +2,7 @@ package ru.andryss.dragons.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,6 +14,6 @@ public class KillerTeamEntity {
     int id;
     String name;
     int size;
-    @OneToOne
+    @ManyToOne
     CaveEntity caveEntity;
 }
