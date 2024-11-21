@@ -36,7 +36,7 @@ public class RemoteKillerServiceImpl implements RemoteKillerService {
     @Inject
     private RestTemplate restTemplate;
 
-    private final String dragonServiceUrl = "https://localhost:9090";
+    private final String dragonServiceUrl = "https://localhost:8443";
 
     @Override
     public KillerTeamDto createTeam(Integer teamId, String teamName, Integer teamSize, Integer startCaveId) {

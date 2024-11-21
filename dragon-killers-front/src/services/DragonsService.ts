@@ -3,7 +3,7 @@ import axios from "axios";
 import {Absent, parse} from "js2xmlparser";
 import {XMLParser} from "fast-xml-parser";
 
-const drgBaseUrl = "https://localhost:8443/dragons_service_war"
+const drgBaseUrl = "https://localhost:8443"
 
 export const drgPing = (onSuccess: () => void, onFailure: () => void, onException: () => void) => {
     commonPing(`${drgBaseUrl}/ping`, onSuccess, onFailure, onException);
