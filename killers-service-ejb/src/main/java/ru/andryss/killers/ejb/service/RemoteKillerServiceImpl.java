@@ -102,6 +102,7 @@ public class RemoteKillerServiceImpl implements RemoteKillerService {
         try {
             responseEntity = restTemplate.exchange(url, method, httpEntity, String.class);
         } catch (HttpClientErrorException e) {
+            log.error("Catch HttpClientErrorException", e);
             String responseString = e.getResponseBodyAsString();
             ErrorObject errorObject = readAsXml(responseString, ErrorObject.class);
             throw new InternalServerErrorException(errorObject.getMessage());
