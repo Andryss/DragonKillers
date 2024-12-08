@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc" xmlns:sockets="http://www.mulesoft.org/schema/mule/sockets"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/sockets http://www.mulesoft.org/schema/mule/sockets/current/mule-sockets.xsd
+http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd">
+	<http:listener-config name="HTTPS_dragon-service-soap_config" doc:name="HTTP Listener config" doc:id="fbbf991d-d905-4310-a405-0a39305a4ea5" >
+		<http:listener-connection protocol="HTTPS" host="0.0.0.0" port="9453" >
+			<tls:context >
+				<tls:key-store type="jks" path="/Users/andryssssss/IdeaProjects/ITMO/DragonKillers/killers-service-soap/src/main/resources/dragons-soap.jks" alias="dragons-soap" keyPassword="12348765" password="12348765" />
+			</tls:context>
+		</http:listener-connection>
+	</http:listener-config>
+	<wsc:config name="SOAP_dragon-service-soap_config" doc:name="Web Service Consumer Config" doc:id="aa1f16c7-6f9e-4efd-8658-5475a6397fea" >
+		<wsc:connection wsdlLocation="http://localhost:9095/ws/api.wsdl" service="ApiPortService" port="ApiPortSoap11" address="http://localhost:9095/ws" >
+			<wsc:web-service-security actor="http://schemas.xmlsoap.org/soap/actor/next" />
+		</wsc:connection>
+	</wsc:config>
+	<flow name="killer-service-createKillerTeam" doc:id="43743bb2-7d44-41fb-96d6-49da47229b9b">
+		<http:listener doc:name="Listener" doc:id="9d9b3fdd-e215-4ab1-be20-f79963b5aeab" config-ref="HTTPS_dragon-service-soap_config" path="/killer/teams/create/{teamId}/{teamName}/{teamSize}/{startCaveId}" outputMimeType="application/json" allowedMethods="POST">
+			<http:error-response statusCode='#[read(error.exception.cause.detail, "application/xml").detail.code]'>
+				<http:body><![CDATA[#[payload]]]></http:body>
+			</http:error-response>
+		</http:listener>
+		<ee:transform doc:name="Transform Message" doc:id="8572ba8b-01ac-443c-af10-b8882ee7ed49">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output text/xml
+ns ns0 http://killers.andryss.ru/soap/gen
+---
+{
+	ns0#createKillerTeamRequest: {
+		ns0#teamId: attributes.uriParams.teamId,
+		ns0#teamName: attributes.uriParams.teamName,
+		ns0#teamSize: attributes.uriParams.teamSize,
+		ns0#startCaveId: attributes.uriParams.startCaveId,
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="7e1de7b9-3cc5-4a5b-b7df-23e823991004" message="#[payload]" />
+		<wsc:consume operation="createKillerTeam" doc:name="Consume" doc:id="c839e65e-d79d-4a4a-822d-0ca6a5fe3329" config-ref="SOAP_dragon-service-soap_config" />
+		<logger level="INFO" doc:name="Logger" doc:id="8cbeab2c-fb38-4610-b136-8eb542368521" message="#[payload]" />
+		<ee:transform doc:name="Transform Message" doc:id="c6d000f0-8df9-4182-b861-f326e1b14220">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+ns ns0 http://killers.andryss.ru/soap/gen
+---
+{
+	"id": payload.body.ns0#createKillerTeamResponse.ns0#id,
+	"name": payload.body.ns0#createKillerTeamResponse.ns0#name,
+	"size": payload.body.ns0#createKillerTeamResponse.ns0#size,
+	"caveId": payload.body.ns0#createKillerTeamResponse.ns0#caveId
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="475d0e13-a1ac-4b82-bb7a-3d1615e23460" type="ANY">
+				<ee:transform doc:name="Transform Message" doc:id="06014178-8ca6-4e33-bee5-303ad743018b">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+
+var detail = read(error.exception.cause.detail, "application/xml")
+---
+{
+	"message": detail.detail.description
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<logger level="ERROR" doc:name="Logger" doc:id="7dc67721-b949-43b6-9b77-a9fd1e16ef6e" message="#[payload]" />
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="killer-service-moveKillerTeam" doc:id="a24c8e3f-a0ba-49c9-8c14-a4861782091c" >
+		<http:listener doc:name="Listener" doc:id="4ad92e1f-0ed1-4758-a3e0-53d9a9841f66" config-ref="HTTPS_dragon-service-soap_config" path="/killer/team/{teamId}/move-to-cave/{caveId}" outputMimeType="application/json">
+			<http:error-response statusCode='#[read(error.exception.cause.detail, "application/xml").detail.code]'>
+				<http:body ><![CDATA[#[payload]]]></http:body>
+			</http:error-response>
+		</http:listener>
+		<ee:transform doc:name="Transform Message" doc:id="edbc6885-d904-4e60-8965-4f9bcfa3ad0e" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output text/xml
+ns ns0 http://killers.andryss.ru/soap/gen
+---
+{
+	ns0#moveKillerTeamRequest: {
+		ns0#teamId: attributes.uriParams.teamId,
+		ns0#caveId: attributes.uriParams.caveId,
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="f42b9d0f-6b25-4d1f-84a5-f647b1bf2d35" message="#[payload]"/>
+		<wsc:consume doc:name="Consume" doc:id="9a6e226c-9e4e-4fd9-9f60-7f1cc2be9bc1" config-ref="SOAP_dragon-service-soap_config" operation="moveKillerTeam"/>
+		<logger level="INFO" doc:name="Logger" doc:id="72fbce51-3c0a-416e-aacb-7634b2041c7b" message="#[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="28d62a3d-8ff3-43a9-a18d-d1a517af006a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+ns ns0 http://killers.andryss.ru/soap/gen
+---
+{
+	"id": payload.body.ns0#moveKillerTeamResponse.ns0#id,
+	"name": payload.body.ns0#moveKillerTeamResponse.ns0#name,
+	"size": payload.body.ns0#moveKillerTeamResponse.ns0#size,
+	"caveId": payload.body.ns0#moveKillerTeamResponse.ns0#caveId
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="13b1ccdc-fc3a-49cd-9f14-f366e27bd439" >
+				<ee:transform doc:name="Transform Message" doc:id="9fd05f9e-89dc-4834-a053-149f63225dab" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+
+var detail = read(error.exception.cause.detail, "application/xml")
+---
+{
+	"message": detail.detail.description
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<logger level="ERROR" doc:name="Logger" doc:id="87a02d14-7983-4836-b49b-8ff2527f8441" message="#[payload]"/>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="killer-service-ping" doc:id="6f5089e6-5466-4b9f-b678-23237ed7d073" >
+		<http:listener doc:name="Listener" doc:id="281b52b4-4c7c-459b-a5ac-d40cd962a115" config-ref="HTTPS_dragon-service-soap_config" path="/ping" outputMimeType="application/json" allowedMethods="GET">
+			<http:error-response statusCode='#[read(error.exception.cause.detail, "application/xml").detail.code]'>
+				<http:body ><![CDATA[#[payload]]]></http:body>
+			</http:error-response>
+		</http:listener>
+		<ee:transform doc:name="Transform Message" doc:id="9a601aac-3169-43e7-b7ba-c3ce31de43b8" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output text/xml
+ns ns0 http://killers.andryss.ru/soap/gen
+---
+{
+	ns0#pingRequest: {
+		ns0#message: "pong",
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="0389300f-e406-44f3-94d1-1df56ce398c5" message="#[payload]"/>
+		<wsc:consume operation="ping" doc:name="Consume" doc:id="15b87f65-4246-4a5b-b68f-e638c104808f" config-ref="SOAP_dragon-service-soap_config"/>
+		<logger level="INFO" doc:name="Logger" doc:id="bed291c0-3b82-4c98-a5d4-0cf76aa5f925" message="#[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="1acc4274-4afe-4c03-9a8e-d266545e286c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output text/plain
+ns ns0 http://killers.andryss.ru/soap/gen
+---
+payload.body.ns0#pingResponse.ns0#message]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="4cc68d65-070c-4138-94b6-1bb0f4572feb" type="ANY">
+				<ee:transform doc:name="Transform Message" doc:id="cec0a69f-7c63-4de0-bc3e-f4533d4b3abd" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+
+var detail = read(error.exception.cause.detail, "application/xml")
+---
+{
+	"message": detail.detail.description
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<logger level="ERROR" doc:name="Logger" doc:id="ebb42713-d877-429f-8901-9cbb5de75b77" message="#[payload]"/>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>
