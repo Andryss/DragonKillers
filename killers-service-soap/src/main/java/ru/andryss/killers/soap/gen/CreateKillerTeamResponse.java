@@ -10,6 +10,7 @@ package ru.andryss.killers.soap.gen;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
 
@@ -24,7 +25,9 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *       &lt;sequence&gt;
- *         &lt;element name="teamId" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *         &lt;element name="id" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *         &lt;element name="name" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *         &lt;element name="size" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
  *         &lt;element name="caveId" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
  *       &lt;/sequence&gt;
  *     &lt;/restriction&gt;
@@ -36,29 +39,74 @@ import jakarta.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
-    "teamId",
+    "id",
+    "name",
+    "size",
     "caveId"
 })
-@XmlRootElement(name = "moveKillerTeamRequest")
-public class MoveKillerTeamRequest {
+@XmlRootElement(name = "createKillerTeamResponse")
+public class CreateKillerTeamResponse {
 
-    protected int teamId;
+    protected int id;
+    @XmlElement(required = true)
+    protected String name;
+    protected int size;
     protected int caveId;
 
     /**
-     * Gets the value of the teamId property.
+     * Gets the value of the id property.
      * 
      */
-    public int getTeamId() {
-        return teamId;
+    public int getId() {
+        return id;
     }
 
     /**
-     * Sets the value of the teamId property.
+     * Sets the value of the id property.
      * 
      */
-    public void setTeamId(int value) {
-        this.teamId = value;
+    public void setId(int value) {
+        this.id = value;
+    }
+
+    /**
+     * Gets the value of the name property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Sets the value of the name property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setName(String value) {
+        this.name = value;
+    }
+
+    /**
+     * Gets the value of the size property.
+     * 
+     */
+    public int getSize() {
+        return size;
+    }
+
+    /**
+     * Sets the value of the size property.
+     * 
+     */
+    public void setSize(int value) {
+        this.size = value;
     }
 
     /**

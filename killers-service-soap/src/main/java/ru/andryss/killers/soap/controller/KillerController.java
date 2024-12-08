@@ -10,6 +10,7 @@ import org.springframework.ws.server.endpoint.annotation.Endpoint;
 import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
 import org.springframework.ws.server.endpoint.annotation.RequestPayload;
 import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
+import ru.andryss.killers.model.KillerTeamDto;
 import ru.andryss.killers.soap.exception.BadRequestException;
 import ru.andryss.killers.soap.exception.InternalServerErrorException;
 import ru.andryss.killers.soap.exception.NotFoundException;
@@ -17,8 +18,9 @@ import ru.andryss.killers.soap.exception.ServiceFault;
 import ru.andryss.killers.soap.exception.ServiceFaultException;
 import ru.andryss.killers.soap.exception.ServiceUnavailableException;
 import ru.andryss.killers.soap.gen.CreateKillerTeamRequest;
-import ru.andryss.killers.soap.gen.KillerTeamDto;
+import ru.andryss.killers.soap.gen.CreateKillerTeamResponse;
 import ru.andryss.killers.soap.gen.MoveKillerTeamRequest;
+import ru.andryss.killers.soap.gen.MoveKillerTeamResponse;
 import ru.andryss.killers.soap.gen.ObjectFactory;
 import ru.andryss.killers.soap.service.KillerService;
 
@@ -36,7 +38,7 @@ public class KillerController {
 
     @PayloadRoot(namespace = NAMESPACE_URI, localPart = "createKillerTeamRequest")
     @ResponsePayload
-    public KillerTeamDto createKillerTeam(@RequestPayload CreateKillerTeamRequest request) {
+    public CreateKillerTeamResponse createKillerTeam(@RequestPayload CreateKillerTeamRequest request) {
         SimpleErrors errors = new SimpleErrors(request);
         createKillerTeamRequestValidator.validate(request, errors);
         if (errors.hasFieldErrors()) {
@@ -51,12 +53,20 @@ public class KillerController {
 
         log.info("Create killer team id={} name={} size={} cave={}", teamId, teamName, teamSize, startCaveId);
 
-        return wrapException(() -> getResponseFrom(killerService.createTeam(teamId, teamName, teamSize, startCaveId)));
+        return wrapException(() -> {
+            KillerTeamDto teamDto = killerService.createTeam(teamId, teamName, teamSize, startCaveId);
+            CreateKillerTeamResponse response = objectFactory.createCreateKillerTeamResponse();
+            response.setId(teamDto.getId());
+            response.setName(teamDto.getName());
+            response.setSize(teamDto.getSize());
+            response.setCaveId(teamDto.getCaveId());
+            return response;
+        });
     }
 
     @PayloadRoot(namespace = NAMESPACE_URI, localPart = "moveKillerTeamRequest")
     @ResponsePayload
-    public KillerTeamDto moveKillerTeam(@RequestPayload MoveKillerTeamRequest request) {
+    public MoveKillerTeamResponse moveKillerTeam(@RequestPayload MoveKillerTeamRequest request) {
         SimpleErrors errors = new SimpleErrors(request);
         moveKillerTeamRequestValidator.validate(request, errors);
         if (errors.hasFieldErrors()) {
@@ -69,22 +79,21 @@ public class KillerController {
 
         log.info("Move killer team id={} cave={}", teamId, caveId);
 
-        return wrapException(() -> getResponseFrom(killerService.moveTeam(teamId, caveId)));
+        return wrapException(() -> {
+            KillerTeamDto teamDto = killerService.moveTeam(teamId, caveId);
+            MoveKillerTeamResponse response = objectFactory.createMoveKillerTeamResponse();
+            response.setId(teamDto.getId());
+            response.setName(teamDto.getName());
+            response.setSize(teamDto.getSize());
+            response.setCaveId(teamDto.getCaveId());
+            return response;
+        });
     }
 
     private static String buildValidationErrorString(SimpleErrors errors) {
         return errors.getFieldErrors().stream()
                 .map(e -> e.getField() + ": " + e.getDefaultMessage())
                 .collect(Collectors.joining("; "));
-    }
-
-    private KillerTeamDto getResponseFrom(ru.andryss.killers.model.KillerTeamDto teamDto) {
-        KillerTeamDto response = objectFactory.createKillerTeamDto();
-        response.setId(teamDto.getId());
-        response.setName(teamDto.getName());
-        response.setSize(teamDto.getSize());
-        response.setCaveId(teamDto.getCaveId());
-        return response;
     }
 
     private static <T> T wrapException(Supplier<T> supplier) {
