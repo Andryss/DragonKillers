@@ -2,7 +2,7 @@ import {commonPing, ErrorObject} from "./CommonService";
 import axios from "axios";
 import {XMLParser} from "fast-xml-parser";
 
-const krlBaseUrl = "https://localhost:9453"
+const krlBaseUrl = "https://localhost:9457"
 
 export const klrPing = (onSuccess: () => void, onFailure: () => void, onException: () => void) => {
     commonPing(`${krlBaseUrl}/ping`, onSuccess, onFailure, onException);

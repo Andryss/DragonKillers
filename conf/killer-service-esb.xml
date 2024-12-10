@@ -9,21 +9,33 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 http://www.mulesoft.org/schema/mule/sockets http://www.mulesoft.org/schema/mule/sockets/current/mule-sockets.xsd
 http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd">
 	<http:listener-config name="HTTPS_dragon-service-soap_config" doc:name="HTTP Listener config" doc:id="fbbf991d-d905-4310-a405-0a39305a4ea5" >
-		<http:listener-connection protocol="HTTPS" host="0.0.0.0" port="9453" >
+		<http:listener-connection protocol="HTTPS" host="0.0.0.0" port="9457" >
 			<tls:context >
 				<tls:key-store type="jks" path="/Users/andryssssss/IdeaProjects/ITMO/DragonKillers/killers-service-soap/src/main/resources/dragons-soap.jks" alias="dragons-soap" keyPassword="12348765" password="12348765" />
 			</tls:context>
 		</http:listener-connection>
 	</http:listener-config>
 	<wsc:config name="SOAP_dragon-service-soap_config" doc:name="Web Service Consumer Config" doc:id="aa1f16c7-6f9e-4efd-8658-5475a6397fea" >
-		<wsc:connection wsdlLocation="http://localhost:9095/ws/api.wsdl" service="ApiPortService" port="ApiPortSoap11" address="http://localhost:9095/ws" >
+		<wsc:connection wsdlLocation="http://localhost:9105/ws/api.wsdl" service="ApiPortService" port="ApiPortSoap11" address="http://localhost:9105/ws" >
 			<wsc:web-service-security actor="http://schemas.xmlsoap.org/soap/actor/next" />
 		</wsc:connection>
 	</wsc:config>
 	<flow name="killer-service-createKillerTeam" doc:id="43743bb2-7d44-41fb-96d6-49da47229b9b">
 		<http:listener doc:name="Listener" doc:id="9d9b3fdd-e215-4ab1-be20-f79963b5aeab" config-ref="HTTPS_dragon-service-soap_config" path="/killer/teams/create/{teamId}/{teamName}/{teamSize}/{startCaveId}" outputMimeType="application/json" allowedMethods="POST">
+			<http:response >
+				<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Access-Control-Allow-Origin" : "*"
+}]]]></http:headers>
+			</http:response>
 			<http:error-response statusCode='#[read(error.exception.cause.detail, "application/xml").detail.code]'>
 				<http:body><![CDATA[#[payload]]]></http:body>
+				<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Access-Control-Allow-Origin" : "*"
+}]]]></http:headers>
 			</http:error-response>
 		</http:listener>
 		<ee:transform doc:name="Transform Message" doc:id="8572ba8b-01ac-443c-af10-b8882ee7ed49">
@@ -48,14 +60,16 @@ ns ns0 http://killers.andryss.ru/soap/gen
 		<ee:transform doc:name="Transform Message" doc:id="c6d000f0-8df9-4182-b861-f326e1b14220">
 			<ee:message>
 				<ee:set-payload><![CDATA[%dw 2.0
-output application/json
+output text/xml
 ns ns0 http://killers.andryss.ru/soap/gen
 ---
 {
-	"id": payload.body.ns0#createKillerTeamResponse.ns0#id,
-	"name": payload.body.ns0#createKillerTeamResponse.ns0#name,
-	"size": payload.body.ns0#createKillerTeamResponse.ns0#size,
-	"caveId": payload.body.ns0#createKillerTeamResponse.ns0#caveId
+	createKillerTeamResponse: {
+		id: payload.body.ns0#createKillerTeamResponse.ns0#id,
+		name: payload.body.ns0#createKillerTeamResponse.ns0#name,
+		size: payload.body.ns0#createKillerTeamResponse.ns0#size,
+		caveId: payload.body.ns0#createKillerTeamResponse.ns0#caveId
+	}
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
@@ -64,12 +78,14 @@ ns ns0 http://killers.andryss.ru/soap/gen
 				<ee:transform doc:name="Transform Message" doc:id="06014178-8ca6-4e33-bee5-303ad743018b">
 					<ee:message>
 						<ee:set-payload><![CDATA[%dw 2.0
-output application/json
+output text/xml
 
 var detail = read(error.exception.cause.detail, "application/xml")
 ---
 {
-	"message": detail.detail.description
+	ErrorObject: {
+		message: detail.detail.description
+	}
 }]]></ee:set-payload>
 					</ee:message>
 				</ee:transform>
@@ -79,8 +95,20 @@ var detail = read(error.exception.cause.detail, "application/xml")
 	</flow>
 	<flow name="killer-service-moveKillerTeam" doc:id="a24c8e3f-a0ba-49c9-8c14-a4861782091c" >
 		<http:listener doc:name="Listener" doc:id="4ad92e1f-0ed1-4758-a3e0-53d9a9841f66" config-ref="HTTPS_dragon-service-soap_config" path="/killer/team/{teamId}/move-to-cave/{caveId}" outputMimeType="application/json">
+			<http:response >
+				<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Access-Control-Allow-Origin" : "*"
+}]]]></http:headers>
+			</http:response>
 			<http:error-response statusCode='#[read(error.exception.cause.detail, "application/xml").detail.code]'>
 				<http:body ><![CDATA[#[payload]]]></http:body>
+				<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Access-Control-Allow-Origin" : "*"
+}]]]></http:headers>
 			</http:error-response>
 		</http:listener>
 		<ee:transform doc:name="Transform Message" doc:id="edbc6885-d904-4e60-8965-4f9bcfa3ad0e" >
@@ -103,14 +131,16 @@ ns ns0 http://killers.andryss.ru/soap/gen
 		<ee:transform doc:name="Transform Message" doc:id="28d62a3d-8ff3-43a9-a18d-d1a517af006a" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
-output application/json
+output text/xml
 ns ns0 http://killers.andryss.ru/soap/gen
 ---
 {
-	"id": payload.body.ns0#moveKillerTeamResponse.ns0#id,
-	"name": payload.body.ns0#moveKillerTeamResponse.ns0#name,
-	"size": payload.body.ns0#moveKillerTeamResponse.ns0#size,
-	"caveId": payload.body.ns0#moveKillerTeamResponse.ns0#caveId
+	moveKillerTeamResponse: {
+		id: payload.body.ns0#moveKillerTeamResponse.ns0#id,
+		name: payload.body.ns0#moveKillerTeamResponse.ns0#name,
+		size: payload.body.ns0#moveKillerTeamResponse.ns0#size,
+		caveId: payload.body.ns0#moveKillerTeamResponse.ns0#caveId
+	}
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
@@ -119,12 +149,14 @@ ns ns0 http://killers.andryss.ru/soap/gen
 				<ee:transform doc:name="Transform Message" doc:id="9fd05f9e-89dc-4834-a053-149f63225dab" >
 					<ee:message >
 						<ee:set-payload ><![CDATA[%dw 2.0
-output application/json
+output text/xml
 
 var detail = read(error.exception.cause.detail, "application/xml")
 ---
 {
-	"message": detail.detail.description
+	ErrorObject: {
+		message: detail.detail.description
+	}
 }]]></ee:set-payload>
 					</ee:message>
 				</ee:transform>
@@ -134,8 +166,20 @@ var detail = read(error.exception.cause.detail, "application/xml")
 	</flow>
 	<flow name="killer-service-ping" doc:id="6f5089e6-5466-4b9f-b678-23237ed7d073" >
 		<http:listener doc:name="Listener" doc:id="281b52b4-4c7c-459b-a5ac-d40cd962a115" config-ref="HTTPS_dragon-service-soap_config" path="/ping" outputMimeType="application/json" allowedMethods="GET">
+			<http:response >
+				<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Access-Control-Allow-Origin" : "*"
+}]]]></http:headers>
+			</http:response>
 			<http:error-response statusCode='#[read(error.exception.cause.detail, "application/xml").detail.code]'>
 				<http:body ><![CDATA[#[payload]]]></http:body>
+				<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Access-Control-Allow-Origin" : "*"
+}]]]></http:headers>
 			</http:error-response>
 		</http:listener>
 		<ee:transform doc:name="Transform Message" doc:id="9a601aac-3169-43e7-b7ba-c3ce31de43b8" >
@@ -157,10 +201,12 @@ ns ns0 http://killers.andryss.ru/soap/gen
 		<ee:transform doc:name="Transform Message" doc:id="1acc4274-4afe-4c03-9a8e-d266545e286c" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
-output text/plain
+output text/xml
 ns ns0 http://killers.andryss.ru/soap/gen
 ---
-payload.body.ns0#pingResponse.ns0#message]]></ee:set-payload>
+{
+	message: payload.body.ns0#pingResponse.ns0#message
+}]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
 		<error-handler >
@@ -168,12 +214,14 @@ payload.body.ns0#pingResponse.ns0#message]]></ee:set-payload>
 				<ee:transform doc:name="Transform Message" doc:id="cec0a69f-7c63-4de0-bc3e-f4533d4b3abd" >
 					<ee:message >
 						<ee:set-payload ><![CDATA[%dw 2.0
-output application/json
+output text/xml
 
 var detail = read(error.exception.cause.detail, "application/xml")
 ---
 {
-	"message": detail.detail.description
+	ErrorObject: {
+		message: detail.detail.description
+	}
 }]]></ee:set-payload>
 					</ee:message>
 				</ee:transform>
